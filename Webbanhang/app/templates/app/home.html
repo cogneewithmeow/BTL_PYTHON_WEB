@@ -1,0 +1,61 @@
+{% extends "app/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block banner_slider %}
+    <div id="carouselExampleDark" class="carousel carousel-dark slide">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        </div>
+        <div class="carousel-inner">
+            <div class="carousel-item active" data-bs-interval="10000">
+                <img src="{% static "app/image/banner/1.jpg" %}" class="d-block w-100" alt="..." height = '500'>
+            </div>
+            <div class="carousel-item" data-bs-interval="2000">
+                <img src="{% static "app/image/banner/2.jpg" %}" class="d-block w-100" alt="..." height = '500'>
+            </div>
+            <div class="carousel-item">
+                <img src="{% static "app/image/banner/3.jpg" %}" class="d-block w-100" alt="..." height = '500'>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+{% endblock banner_slider %}
+{% block main_content %}
+    <div class = "row" style = "width:100%">
+        {%for product in products %}
+        <div class="col-lg-3">
+            <div class="card h-100 shadow-sm">
+                <img src="{{product.ImageUrl}}" 
+                    class="card-img-top" 
+                    style="height:200px; object-fit:cover;">
+                <div class="card-body">
+                    <h6 class="card-title fw-bold mb-2">{{product.name}}</h6>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-1">
+                            <button data-product = {{product.id}} data-action = "add" class="btn btn-outline-primary btn-sm add-cart update-cart">
+                                🛒 Add
+                            </button>
+
+                            <a class="btn btn-sm view-btn" href="{% url "detail" %}?id={{product.id}}">
+                                Xem
+                            </a>
+                        </div>
+                        <span class="text-danger fw-bold">
+                            💵 {{product.price|intcomma}}VNĐ
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock main_content %}

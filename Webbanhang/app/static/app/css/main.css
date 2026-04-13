@@ -1,0 +1,269 @@
+.btn-save {
+    background: #4CAF50;       /* màu xanh */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.btn-success{
+    background: #4CAF50;       /* màu xanh */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 15px!important;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.name{
+    color:#000000;
+}
+
+.btn-change-profile{
+    background: #4CAF50;   
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 15px!important;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.btn-change-profile:hover {
+    background: #075b0b;       /* xanh đậm khi hover */
+    transform: translateY(-1px);
+}
+
+.btn-save:hover {
+    background: #075b0b;       /* xanh đậm khi hover */
+    transform: translateY(-1px);
+}
+
+.avatar-profile {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;      /* QUAN TRỌNG */
+    border-radius: 50%;     /* Bo tròn */
+    border: 3px solid #ddd; /* Viền nhẹ */
+}
+
+
+/* Ẩn input file gốc */
+input[type="file"] {
+    display: none;
+}
+
+.btn-group {
+    display: flex;
+    justify-content: center;  /* căn giữa */
+    align-items: center;
+    gap: 10px;                /* khoảng cách giữa 2 nút */
+    margin-top: 10px;
+}
+
+/* đảm bảo 2 nút cùng chiều cao */
+.btn-upload,
+.btn-submit {
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+/* nút upload */
+.btn-upload {
+    background: #4CAF50;
+    color: white;
+}
+
+/* nút submit */
+.btn-submit {
+    background: #4CAF50;
+    color: white;
+    border: none;
+}
+
+.nav-right{
+	margin-right: 30px;
+}
+
+h1,h2,h3,h4,h5,h6{
+	color:hsl(0, 0%, 50%);
+}
+
+.box-element{
+	box-shadow:hsl(0, 0%, 80%) 0 0 16px;
+	background-color: #fff;
+	border-radius: 4px;
+	padding: 5px;
+}
+
+.product-title{
+	color:#000705;
+}
+
+.thumbnail{
+	width: 350px;
+	height:200px;
+	-webkit-box-shadow: -1px -3px 5px -2px rgba(214,214,214,1);
+    -moz-box-shadow: -1px -3px 5px -2px rgba(214,214,214,1);
+    box-shadow: -1px -3px 5px -2px rgba(214,214,214,1);
+}
+
+.product{
+	border-radius: 0 0 4px 4px;
+}
+
+.bg-dark{
+	background-color: #4f868c!important;
+}
+
+#cart-icon{
+	width:30px;
+	display: inline-block;
+	margin-right: 10px;
+}
+
+#cart-total {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background-color: rgb(238, 20, 20);
+    width: 16px;
+    height: 16px; 
+    border-radius: 50%;
+    font-size: 9px;
+    margin-right: 78px;
+    margin-top: 27px;
+}
+
+.back-btn {
+    color: rgb(69, 162, 56);
+	display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.col-lg-3, .col-lg-4, .col-lg-6, .col-lg-8, .col-lg-12{
+	margin-top: 10px;
+}
+
+.btn{
+	border-radius: 0;
+}
+
+.row-image{
+	width: 100px;
+}
+
+.form-field{
+	width:250px;
+	display: inline-block;
+	padding: 5px;
+}
+
+.cart-row{
+	display: flex;
+    align-items: flex-stretch;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ececec;
+
+}
+
+.quantity{
+	display: inline-block;
+	font-weight: 700;
+	padding-right:10px;
+	
+
+}
+
+.chg-quantity{
+	width: 12px;
+	cursor: pointer;
+	display: block;
+	margin-top: 5px;
+	transition:.1s;
+}
+
+.chg-quantity:hover{
+	opacity: .6;
+}
+
+
+.hidden{
+	display: none!important;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+footer {
+    background-color: #198754;
+    color: white;
+    text-align: center;
+    padding: 5px;
+    border-top: 3px solid #146c43;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+.container {
+    flex: 1;
+}
+
+.add-cart {
+    border-radius: 6px;
+    font-size: 13px;
+    padding: 4px 10px;
+}
+
+.view-btn {
+	background-color: #a8e6cf;
+    color: #2d6a4f;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    padding: 4px 10px;
+}
+
+.btn {
+    transition: 0.2s;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-search {
+    margin-right: 10px;
+	border-radius: 10px;
+}

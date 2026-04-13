@@ -1,0 +1,143 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% load humanize %}
+{% block content_checkout %}
+     <div class="container">
+        <div class="row">
+            <div class="col-xl-8">
+                <div class="card">
+                    <div class="card-body">
+                        <ol class="activity-checkout mb-0 px-4 mt-3">
+                            <li class="checkout-item">
+                                <div class="avatar checkout-icon p-1">
+                                    <div class="avatar-title rounded-circle bg-primary">
+                                        <i class="bx bxs-recept text-white font-size-20"></i>
+                                    </div>
+                                </div>
+                                <div class="feed-item-list">
+                                    <div>
+                                        <h5 class="font-size-16 mb-1">Địa chỉ giao hàng</h5>
+
+                                        <div class="mb-3">
+                                            <form method = "POST">
+                                                {% csrf_token %}
+                                                <div>
+                                                    <div class="row">
+                                                        <div class="col-lg-4">
+                                                            <div class="mb-3">
+                                                                <label class="form-label" for="billing-name">Họ và tên</label>
+                                                                <input type="text" class="form-control" name="name" placeholder="Họ và tên">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-4">
+                                                            <div class="mb-3">
+                                                                <label class="form-label" for="billing-email-address">Email</label>
+                                                                <input type="email" class="form-control" name="email" placeholder="Enter email">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-4">
+                                                            <div class="mb-3">
+                                                                <label class="form-label" for="billing-phone">Số điện thoại</label>
+                                                                <input type="text" class="form-control" name = "phone" placeholder="Enter Phone no.">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="billing-address">Địa chỉ</label>
+                                                        <textarea class="form-control" name = "address" rows="3" placeholder="Enter full address"></textarea>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div class="col-lg-4">
+                                                            <div class="mb-4 mb-lg-0">
+                                                                <label class="form-label" for="billing-city">Quận/huyện</label>
+                                                                <input type="text" class="form-control" name = "city" placeholder="Enter City">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-lg-4">
+                                                            <div class="mb-4 mb-lg-0">
+                                                                <label class="form-label" for="billing-city">Thành Phố</label>
+                                                                <input type="text" class="form-control" name = "state" placeholder="Enter City">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+												<div class="row my-4 align-items-center">
+													<div class="col d-flex align-items-center">
+														<a href="{% url "cart" %}" class="btn btn-link text-muted p-0">
+															<i class="mdi mdi-arrow-left me-1"></i> Continue Shopping
+														</a>
+													</div>
+
+													<div class="col text-end">
+														<button type="submit" class="btn btn-success">
+															Xác nhận đơn hàng
+														</button>
+													</div>
+												</div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4">
+                <div class="card checkout-order-summary">
+                    <div class="card-body">
+                        <div class="p-3 bg-light mb-3">
+                            <h5 class="font-size-16 mb-0">Order Summary <span class="float-end ms-2">#MN0124</span></h5>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-centered mb-0 table-nowrap">
+                                <thead>
+                                    <tr>
+                                        <th class="border-top-0" style="width: 110px;" scope="col">Product</th>
+                                        <th class="border-top-0" scope="col">Product Desc</th>
+                                        <th class="border-top-0" scope="col">Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in items %}
+                                    <tr>
+                                        <th scope="row">
+                                            <img src="{{ item.product.ImageUrl }}" class="avatar-lg rounded" width="80">
+                                        </th>
+                                        <td>
+                                            <h5>{{ item.product.name }}</h5>
+                                            <p>{{ item.product.price|intcomma }} x {{ item.quantity }}</p>
+                                        </td>
+                                        <td>{{ item.get_total|intcomma }}VNĐ</td>
+                                    </tr>
+                                    {% endfor %}
+                                    <tr>
+                                        <td colspan="2">
+                                            <h5 class="font-size-14 m-0">Total :</h5>
+                                        </td>
+                                        <td>
+                                           {{order.get_cart_total|intcomma}}VNĐ
+                                        </td>
+                                    </tr>
+									<tr>
+										<td colspan="2">
+                                            <h5 class="font-size-14 m-0">Thời gian :</h5>
+                                        </td>
+                                        <td>
+                                           {{order.date_order}}
+                                        </td>
+									</tr>
+                                </tbody>
+                            </table>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end row -->
+    </div>
+{% endblock content_checkout %}
