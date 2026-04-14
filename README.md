@@ -5,21 +5,23 @@ Một ứng dụng web bán hàng được xây dựng bằng **Django**, cho ph
 ## 📋 Tính Năng Chính
 
 - ✅ **Quản lý Sản Phẩm** - Hiển thị danh sách sản phẩm với hình ảnh và giá
-- ✅ **Giỏ Hàng Động** - Thêm/xóa sản phẩm, cập nhật số lượng
+- ✅ **Giỏ Hàng Động** - Thêm/xóa sản phẩm, cập nhật số lượng (AJAX)
 - ✅ **Hệ thống Khách Hàng** - Đăng ký, đăng nhập, lưu thông tin cá nhân
 - ✅ **Quản lý Đơn Hàng** - Tạo, tracking đơn hàng
 - ✅ **Địa Chỉ Giao Hàng** - Lưu và quản lý địa chỉ giao hàng
 - ✅ **Thanh Toán** - Hỗ trợ giao dịch trực tuyến (transaction_id)
 - ✅ **Sản Phẩm Số Hóa** - Hỗ trợ sản phẩm kỹ thuật số
+- ✅ **Tìm Kiếm & Danh Mục** - Tìm kiếm sản phẩm, lọc theo danh mục
+- ✅ **Profile Người Dùng** - Cập nhật thông tin cá nhân, avatar
 
 ## 🏗️ Cấu Trúc Dự Án
 
 ```
 Webbanhang/
 ├── app/                          # Ứng dụng chính
-│   ├── models.py                # Models: Customer, Product, Order, OrderItem, ShippingAddress
-│   ├── views.py                 # Views xử lý logic
-│   ├── urls.py                  # URL routing
+│   ├── models.py                # Models: Category, Product, Order, OrderItem, ShippingAddress, Profile
+│   ├── views.py                 # Views: home, cart, checkout, login, register, profile, etc.
+│   ├── urls.py                  # URL routing: home, register, login, cart, checkout, etc.
 │   ├── admin.py                 # Admin Django
 │   ├── static/
 │   │   ├── css/main.css         # Stylesheet chính
@@ -30,7 +32,11 @@ Webbanhang/
 │           ├── base.html        # Template cơ sở
 │           ├── home.html        # Trang chủ
 │           ├── cart.html        # Giỏ hàng
-│           └── checkout.html    # Thanh toán
+│           ├── checkout.html    # Thanh toán
+│           ├── login.html       # Đăng nhập
+│           ├── register.html    # Đăng ký
+│           ├── profile.html     # Profile
+│           └── success.html     # Thành công
 ├── Webbanhang/                  # Cấu hình Django chính
 │   ├── settings.py              # Cấu hình ứng dụng
 │   ├── urls.py                  # URL routing chính
@@ -41,46 +47,69 @@ Webbanhang/
 
 ## 📊 Mô Hình Dữ Liệu
 
-### 1. **Customer** - Khách Hàng
+### 1. **Category** - Danh Mục
 ```python
-- user: OneToOneField (Django User)
+- sub_category: ForeignKey (danh mục con)
+- is_sub: BooleanField (là danh mục con?)
 - name: CharField
-- email: CharField
+- slug: SlugField (unique)
 ```
 
 ### 2. **Product** - Sản Phẩm
 ```python
+- category: ManyToManyField (Category)
 - name: CharField
 - price: IntegerField
 - digital: BooleanField (sản phẩm số hóa?)
 - image: ImageField
+- detail: TextField
+- ImageUrl: Property (URL hình ảnh)
 ```
 
 ### 3. **Order** - Đơn Hàng
 ```python
-- customer: ForeignKey (Khách Hàng)
+- customer: ForeignKey (User)
 - date_order: DateTimeField (ngày tạo)
 - complete: BooleanField (hoàn thành?)
 - transaction_id: CharField (ID giao dịch)
+- get_cart_items: Property (tổng số lượng)
+- get_cart_total: Property (tổng tiền)
 ```
 
 ### 4. **OrderItem** - Chi Tiết Đơn Hàng
 ```python
-- product: ForeignKey (Sản Phẩm)
-- order: ForeignKey (Đơn Hàng)
+- product: ForeignKey (Product)
+- order: ForeignKey (Order)
 - quantity: IntegerField (số lượng)
 - date_added: DateTimeField (ngày thêm)
+- get_total: Method (tổng tiền item)
 ```
 
 ### 5. **ShippingAddress** - Địa Chỉ Giao Hàng
 ```python
-- customer: ForeignKey (Khách Hàng)
-- order: ForeignKey (Đơn Hàng)
+- customer: ForeignKey (User)
+- order: ForeignKey (Order)
 - address: CharField (địa chỉ)
 - city: CharField (thành phố)
 - state: CharField (tỉnh/bang)
 - mobile: CharField (số điện thoại)
 - date_added: DateTimeField (ngày thêm)
+```
+
+### 6. **Profile** - Hồ Sơ Người Dùng
+```python
+- user: OneToOneField (User)
+- phone: CharField
+- address: CharField
+- avatar: ImageField (upload_to='avatars/')
+- Signal: Tự động tạo Profile khi tạo User
+```
+
+### 7. **CreateUserForm** - Form Đăng Ký Tùy Chỉnh
+```python
+- Thừa kế UserCreationForm
+- Thêm field: phone
+- Fields: username, email, first_name, last_name, password1, password2
 ```
 
 ## 🚀 Cài Đặt & Chạy
@@ -112,17 +141,27 @@ python manage.py runserver
 
 Server sẽ chạy tại: `http://127.0.0.1:8000/`
 
-## 📄 Các Trang Chính
+## 📄 Các Trang Chính & URL
 
-- **Trang Chủ** (`home.html`) - Hiển thị danh sách sản phẩm
-- **Giỏ Hàng** (`cart.html`) - Xem, sửa giỏ hàng
-- **Thanh Toán** (`checkout.html`) - Nhập địa chỉ, thực hiện thanh toán
+- **Trang Chủ** (`/` - home) - Hiển thị danh sách sản phẩm
+- **Đăng Ký** (`/register/` - register) - Tạo tài khoản mới
+- **Đăng Nhập** (`/login/` - login) - Đăng nhập tài khoản
+- **Đăng Xuất** (`/logout/` - logout) - Đăng xuất
+- **Tìm Kiếm** (`/search/` - search) - Tìm kiếm sản phẩm
+- **Danh Mục** (`/category/` - category) - Lọc sản phẩm theo danh mục
+- **Giỏ Hàng** (`/cart/` - cart) - Xem, sửa giỏ hàng
+- **Chi Tiết Sản Phẩm** (`/detail/` - detail) - Xem chi tiết sản phẩm
+- **Profile** (`/profile/` - profile) - Xem và cập nhật thông tin cá nhân
+- **Thanh Toán** (`/checkout/` - checkout) - Nhập địa chỉ, thực hiện thanh toán
+- **Thành Công** (`/success/` - success) - Trang xác nhận thanh toán
+- **Cập Nhật Giỏ Hàng** (`/update_item/` - updateItem) - AJAX cập nhật số lượng
+- **Cập Nhật Profile** (`/update_profile/` - update_profile) - Cập nhật thông tin cá nhân
 
 ## 🔧 Công Nghệ Sử Dụng
 
 - **Backend**: Django 3.x+
 - **Database**: SQLite
-- **Frontend**: HTML, CSS, JavaScript
+- **Frontend**: HTML, CSS, JavaScript (AJAX cho giỏ hàng)
 - **Image**: Pillow
 
 ## 📝 Yêu Cầu Hệ Thống
@@ -146,4 +185,4 @@ Nếu có vấn đề, vui lòng tạo issue trong repository.
 
 ---
 **Phát triển bởi**: Python Web Developer  
-**Ngày cập nhật**: April 3, 2026
+**Ngày cập nhật**: April 13, 2026
