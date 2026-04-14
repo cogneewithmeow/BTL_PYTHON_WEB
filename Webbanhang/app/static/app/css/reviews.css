@@ -1,0 +1,108 @@
+.review-header .avg-score .score{
+  font-size: 40px;
+  font-weight: 700;
+  color: #ee4d2d; /* Shopee-ish */
+  line-height: 1;
+}
+.review-header .avg-score .out-of{
+  font-size: 16px;
+  color: #666;
+}
+
+.rating-bars .bar-label{
+  width: 56px;
+  font-size: 13px;
+  color: #666;
+}
+
+.review-filters .btn,
+.review-sort .btn{
+  border-radius: 999px;
+}
+
+.review-form-wrap{
+  background: #fff7f5;
+  border: 1px solid #ffe1db;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+/* Project hiện đang ẩn toàn bộ input[type=file] trong main.css.
+   Review cần hiển thị input upload ảnh rõ ràng. */
+.review-form-wrap input[type="file"]{
+  display: block !important;
+}
+
+.star-picker{
+  display: inline-flex;
+  gap: 6px;
+}
+.star-picker .star-btn{
+  border: 1px solid #ddd;
+  background: #fff;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  font-size: 20px;
+  color: #c9c9c9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.star-picker .star-btn.active{
+  color: #f6b100;
+  border-color: #f6b100;
+}
+
+.review-image-preview{
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.review-image-preview img{
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+
+.review-item{
+  border-bottom: 1px solid #eee;
+  padding-bottom: 16px;
+}
+.review-avatar{
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #eee;
+}
+.review-avatar-placeholder{
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f2f2f2;
+  color: #777;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #eee;
+}
+.review-images{
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.review-image-thumb img{
+  width: 86px;
+  height: 86px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+
+@media (max-width: 576px){
+  .review-header .avg-score .score{ font-size: 34px; }
+}
+
