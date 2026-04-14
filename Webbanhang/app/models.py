@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.validators import MaxValueValidator, MinValueValidator
 # Create your models here.
 
 #Change form Register of Django
@@ -95,6 +96,63 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    name = models.CharField(max_length=100, blank=True)
+    order_item = models.ForeignKey('OrderItem', on_delete=models.SET_NULL, null=True, blank=True, related_name='reviews')
+    rating = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_edited = models.BooleanField(default=False)
+    is_verified_purchase = models.BooleanField(default=False)
+    helpful_count = models.PositiveIntegerField(default=0)
+
+    STATUS_PENDING = 'pending'
+    STATUS_APPROVED = 'approved'
+    STATUS_HIDDEN = 'hidden'
+    STATUS_CHOICES = (
+        (STATUS_PENDING, 'Pending'),
+        (STATUS_APPROVED, 'Approved'),
+        (STATUS_HIDDEN, 'Hidden'),
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_APPROVED, db_index=True)
+
+    def __str__(self):
+        who = self.user.username if self.user else (self.name or "Anonymous")
+        return f"{who} - {self.product.name} ({self.rating}/5)"
+
+    class Meta:
+        constraints = [
+            # Mỗi user chỉ 1 review / 1 sản phẩm. (Cho phép bản ghi anonymous cũ user=None tồn tại)
+            models.UniqueConstraint(fields=['product', 'user'], name='uniq_review_per_product_user'),
+        ]
+
+
+class ReviewImage(models.Model):
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='review_images/%Y/%m/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"ReviewImage(review_id={self.review_id})"
+
+
+class ReviewHelpfulVote(models.Model):
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='helpful_votes')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review_helpful_votes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['review', 'user'], name='uniq_helpful_vote_per_review_user'),
+        ]
+
+    def __str__(self):
+        return f"HelpfulVote(review_id={self.review_id}, user_id={self.user_id})"
     
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
