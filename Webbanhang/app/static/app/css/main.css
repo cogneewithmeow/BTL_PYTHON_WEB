@@ -1,3 +1,47 @@
+/* NAVBAR ĐỎ ĐẬM */
+.custom-navbar {
+    background: linear-gradient(90deg, #7F1D1D, #B91C1C);
+    padding: 10px 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* TEXT */
+.custom-navbar .nav-link {
+    color: #FFF7ED !important;
+    font-weight: 500;
+}
+
+.custom-navbar .nav-link:hover {
+    color: #FBBF24 !important;
+}
+
+/* LOGO */
+.navbar-brand img {
+    border-radius: 100%;
+    height: 50px;
+    object-fit: cover;
+}
+
+/* SEARCH BOX */
+.custom-navbar input {
+    border-radius: 20px;
+    border: none;
+    padding: 6px 12px;
+}
+
+/* BUTTON TÌM */
+.btn-search {
+    background-color: #FBBF24;
+    color: #7F1D1D;
+    border-radius: 20px;
+    border: none;
+    font-weight: bold;
+}
+
+.btn-search:hover {
+    background-color: #F59E0B;
+}
+
 .btn-save {
     background: #4CAF50;       /* màu xanh */
     color: white;
@@ -132,12 +176,12 @@ h1,h2,h3,h4,h5,h6{
     align-items: center;
     justify-content: center;
     color: #fff;
-    background-color: rgb(238, 20, 20);
+    background-color: rgb(249, 131, 5);
     width: 16px;
     height: 16px; 
     border-radius: 50%;
     font-size: 9px;
-    margin-right: 78px;
+    margin-right: 97px;
     margin-top: 27px;
 }
 
@@ -261,9 +305,4 @@ body {
 
 .btn:hover {
     transform: translateY(-1px);
-}
-
-.btn-search {
-    margin-right: 10px;
-	border-radius: 10px;
 }
