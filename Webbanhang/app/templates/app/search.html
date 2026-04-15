@@ -1,46 +1,215 @@
 {% extends "app/base.html" %}
 {% load static %}
 {% load humanize %}
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
-    </head>
-    <body>
-        {% block search %}
-        <h5>Result search for {{searched}}</h5>
-        <div class = "row" style = "width:100%">
-            {%for product in keys %}
-            <div class="col-lg-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="{{product.ImageUrl}}" 
-                        class="card-img-top" 
-                        style="height:200px; object-fit:cover;">
-                    <div class="card-body">
-                        <h6 class="card-title fw-bold mb-2">{{product.name}}</h6>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center gap-2">
-                                <button data-product = {{product.id}} data-action = "add" class="btn btn-outline-primary btn-sm add-cart update-cart">
-                                    🛒 Thêm vào giỏ hàng
-                                </button>
 
-                                <a class="btn btn-sm view-btn" href="#">
-                                    Xem
-                                </a>
-                            </div>
-                            <span class="text-danger fw-bold">
-                                💵 {{product.price|intcomma}}VNĐ
-                            </span>
-                        </div>
-                    </div>
+{% block search %}
+<section class="search-page">
+    <div class="container py-3 py-md-4">
+        <!-- Breadcrumb (nhẹ, không rườm rà) -->
+        <nav class="search-breadcrumb" aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a class="search-bc__link" href="{% url 'home' %}">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Tìm kiếm</li>
+            </ol>
+        </nav>
+
+        <!-- Header + stats -->
+        <div class="search-head">
+            <div class="search-head__left">
+                <h1 class="search-title">
+                    Kết quả tìm kiếm cho:
+                    {% if searched %}
+                        <span class="search-keyword">“{{ searched }}”</span>
+                    {% else %}
+                        <span class="search-keyword search-keyword--muted">từ khóa trống</span>
+                    {% endif %}
+                </h1>
+                <div class="search-meta">
+                    {% if searched %}
+                        <span class="search-count">{{ total_count|intcomma }} kết quả</span>
+                    {% else %}
+                        <span class="search-count">Hãy nhập từ khóa để bắt đầu</span>
+                    {% endif %}
                 </div>
             </div>
-            {% endfor %}
+
+            <!-- Search refine (mobile quick) -->
+            <div class="search-head__right d-none d-md-flex">
+                <a class="search-action" href="{% url 'home' %}"><i class="fa-solid fa-store"></i> Tiếp tục mua sắm</a>
+            </div>
         </div>
-        {% endblock search %}
-    </body>
-</html>
+
+        <!-- Sort bar (Shopee-like) -->
+        <div class="search-sortbar">
+            <div class="search-sortbar__label">Sắp xếp theo</div>
+
+            <div class="search-sortbar__chips">
+                <a class="sort-chip {% if sort == 'relevant' %}is-active{% endif %}"
+                   href="{% url 'search' %}?q={{ searched|urlencode }}&sort=relevant{% if filters.cat %}&cat={{ filters.cat }}{% endif %}{% if filters.min %}&min={{ filters.min }}{% endif %}{% if filters.max %}&max={{ filters.max }}{% endif %}">
+                    Liên quan
+                </a>
+                <a class="sort-chip {% if sort == 'latest' %}is-active{% endif %}"
+                   href="{% url 'search' %}?q={{ searched|urlencode }}&sort=latest{% if filters.cat %}&cat={{ filters.cat }}{% endif %}{% if filters.min %}&min={{ filters.min }}{% endif %}{% if filters.max %}&max={{ filters.max }}{% endif %}">
+                    Mới nhất
+                </a>
+                <a class="sort-chip sort-chip--disabled"
+                   href="javascript:void(0)"
+                   title="Chưa có dữ liệu bán chạy trong backend hiện tại">
+                    Bán chạy
+                </a>
+                <a class="sort-chip {% if sort == 'price_asc' %}is-active{% endif %}"
+                   href="{% url 'search' %}?q={{ searched|urlencode }}&sort=price_asc{% if filters.cat %}&cat={{ filters.cat }}{% endif %}{% if filters.min %}&min={{ filters.min }}{% endif %}{% if filters.max %}&max={{ filters.max }}{% endif %}">
+                    Giá thấp đến cao
+                </a>
+                <a class="sort-chip {% if sort == 'price_desc' %}is-active{% endif %}"
+                   href="{% url 'search' %}?q={{ searched|urlencode }}&sort=price_desc{% if filters.cat %}&cat={{ filters.cat }}{% endif %}{% if filters.min %}&min={{ filters.min }}{% endif %}{% if filters.max %}&max={{ filters.max }}{% endif %}">
+                    Giá cao đến thấp
+                </a>
+            </div>
+
+            {% if total_count %}
+                <div class="search-sortbar__page">
+                    Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="row g-3 g-lg-4 mt-1">
+            <!-- Filters -->
+            <aside class="col-12 col-lg-3">
+                <div class="search-filter">
+                    <div class="search-filter__head">
+                        <div class="search-filter__title"><i class="fa-solid fa-filter"></i> Bộ lọc</div>
+                        {% if searched %}
+                            <a class="search-filter__reset"
+                               href="{% url 'search' %}?q={{ searched|urlencode }}&sort={{ sort }}">
+                                Xóa lọc
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <form method="get" action="{% url 'search' %}" class="search-filter__form">
+                        <input type="hidden" name="q" value="{{ searched }}">
+                        <input type="hidden" name="sort" value="{{ sort }}">
+
+                        <div class="filter-block">
+                            <div class="filter-block__label">Danh mục</div>
+                            <select class="form-select filter-select" name="cat">
+                                <option value="" {% if not filters.cat %}selected{% endif %}>Tất cả</option>
+                                {% for c in categories %}
+                                    <option value="{{ c.slug }}" {% if filters.cat == c.slug %}selected{% endif %}>{{ c.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="filter-block">
+                            <div class="filter-block__label">Khoảng giá (VNĐ)</div>
+                            <div class="filter-price">
+                                <input class="form-control filter-input" type="number" name="min" min="0" placeholder="Từ" value="{{ filters.min }}">
+                                <span class="filter-price__sep">-</span>
+                                <input class="form-control filter-input" type="number" name="max" min="0" placeholder="Đến" value="{{ filters.max }}">
+                            </div>
+                        </div>
+
+                        <button class="btn search-filter__apply" type="submit" {% if not searched %}disabled{% endif %}>
+                            Áp dụng
+                        </button>
+                    </form>
+
+                    <div class="search-filter__hint">
+                        Tip: Bạn có thể sắp xếp và lọc trực tiếp trên trang này như Shopee.
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Results -->
+            <div class="col-12 col-lg-9">
+                {% if not searched %}
+                    <div class="search-empty">
+                        <div class="search-empty__card">
+                            <div class="search-empty__icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+                            <div class="search-empty__title">Bạn chưa nhập từ khóa</div>
+                            <div class="search-empty__desc">Hãy nhập tên sản phẩm (ví dụ: iPhone, trà sữa, bánh...).</div>
+                            <div class="search-empty__actions">
+                                <a class="btn search-btn search-btn--primary" href="{% url 'home' %}">Về trang chủ</a>
+                            </div>
+                        </div>
+                    </div>
+                {% elif total_count == 0 %}
+                    <div class="search-empty">
+                        <div class="search-empty__card">
+                            <div class="search-empty__icon"><i class="fa-regular fa-face-frown"></i></div>
+                            <div class="search-empty__title">Không tìm thấy sản phẩm phù hợp</div>
+                            <div class="search-empty__desc">
+                                Không có kết quả cho <strong>“{{ searched }}”</strong>.
+                                Hãy thử từ khóa khác hoặc bỏ bớt bộ lọc.
+                            </div>
+                            <div class="search-empty__actions">
+                                <a class="btn search-btn search-btn--ghost" href="{% url 'search' %}?q={{ searched|urlencode }}">Bỏ lọc</a>
+                                <a class="btn search-btn search-btn--primary" href="{% url 'home' %}">Tiếp tục mua sắm</a>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="search-grid">
+                        {% for product in keys %}
+                            <div class="p-card">
+                                <a class="p-card__media" href="{% url 'detail' %}?id={{ product.id }}">
+                                    <img class="p-card__img" src="{{ product.ImageUrl }}" alt="{{ product.name }}">
+                                </a>
+                                <div class="p-card__body">
+                                    <a class="p-card__name" href="{% url 'detail' %}?id={{ product.id }}">{{ product.name }}</a>
+                                    <div class="p-card__bottom">
+                                        <div class="p-card__price">
+                                            {{ product.price|intcomma|cut:"," }}đ
+                                        </div>
+                                        <div class="p-card__actions">
+                                            <button
+                                                data-product="{{ product.id }}"
+                                                data-action="add"
+                                                class="btn p-card__btn p-card__btn--cart update-cart"
+                                                type="button"
+                                            >
+                                                <i class="fa-solid fa-cart-plus"></i>
+                                                Thêm
+                                            </button>
+                                            <a class="btn p-card__btn p-card__btn--view" href="{% url 'detail' %}?id={{ product.id }}">
+                                                Xem
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if page_obj.paginator.num_pages > 1 %}
+                        <nav class="search-pagination" aria-label="Pagination">
+                            <ul class="pagination justify-content-center mb-0">
+                                <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                                    <a class="page-link" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.previous_page_number }}" tabindex="-1">Trước</a>
+                                </li>
+
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if num == page_obj.number %}
+                                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                                    {% elif num >= page_obj.number|add:-2 and num <= page_obj.number|add:2 %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ num }}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                                    <a class="page-link" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.next_page_number }}">Sau</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock search %}

@@ -1,359 +1,570 @@
 {% extends "app/base.html" %}
 {% load static %}
 {% load humanize %}
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
-    </head>
-    <body>
-        {% block search %}
-        {% for product in products %}
-        <div class="container mt-5 mb-5">
-            <div class="row d-flex justify-content-center">
-                <div class="col-md-10">
-                    <div class="card">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="images p-3">
-                                    <div class="text-center p-4"> 
-                                        <img id="main-image" src="{{product.ImageUrl}}" width="250" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="product p-4">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center"> 
-                                            <a href="{% url "home" %}" class="back-btn">
-                                                <i class="fa-solid fa-chevron-left"></i>
-                                                <span>Back</span>
-                                            </a>
-                                            
-                                        </div> 
-                                        <a href="{% url "cart" %}"><i class="fa fa-shopping-cart text-muted"></i></a>
-                                    </div>
-                                    <div class="mt-4 mb-3"> 
-                                        <h5 class="text-uppercase product-title">{{product.name}}</h5>
-                                        <div class="price d-flex flex-row align-items-center"> 
-                                            <span class="act-price product-title">{{product.price|intcomma}}VNĐ</span>
-                                        </div>
-                                    </div>
-                                    <p class="about">{{product.detail}}</p>
-                                    <div class="cart mt-4 align-items-center"> 
-                                        <button data-product = {{product.id}} data-action = "add" class="btn btn-danger text-uppercase mr-2 px-4 add-cart update-cart">Add to cart</button> 
-                                        <i class="fa fa-heart text-muted"></i> 
-                                        <i class="fa fa-share-alt text-muted"></i> 
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+{% block search %}
+  <link rel="stylesheet" href="{% static 'app/css/reviews.css' %}?v=1" />
+  <script src="{% static 'app/js/reviews.js' %}?v=1"></script>
+  <script src="{% static 'app/js/detail.js' %}?v=2"></script>
 
-                    <div class="card mt-4">
-                        <div class="card-body">
-                            <link rel="stylesheet" href="{% static 'app/css/reviews.css' %}?v=1" />
-                            <script src="{% static 'app/js/reviews.js' %}?v=1"></script>
-
-                            <div class="review-header d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
-                                <div>
-                                    <h5 class="mb-1">Đánh giá sản phẩm</h5>
-                                    <div class="text-muted small">{{ review_count }} đánh giá</div>
-                                </div>
-                                <div class="review-avg text-md-end">
-                                    <div class="avg-score">
-                                        <span class="score">{{ avg_rating|floatformat:1 }}</span><span class="out-of">/5</span>
-                                    </div>
-                                    <div class="stars text-warning">
-                                        {% for _ in "12345" %}
-                                            {% if forloop.counter <= avg_rating|floatformat:0 %}★{% else %}☆{% endif %}
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row g-3 mt-2">
-                                <div class="col-12 col-md-5">
-                                    <div class="rating-bars">
-                                        <div class="d-flex align-items-center gap-2 mb-2">
-                                            <div class="bar-label">5 sao</div>
-                                            <div class="progress flex-grow-1" style="height: 8px;">
-                                                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ star_percent.5|floatformat:0 }}%"></div>
-                                            </div>
-                                            <div class="bar-count text-muted small">{{ star_counts.5 }}</div>
-                                        </div>
-                                        <div class="d-flex align-items-center gap-2 mb-2">
-                                            <div class="bar-label">4 sao</div>
-                                            <div class="progress flex-grow-1" style="height: 8px;">
-                                                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ star_percent.4|floatformat:0 }}%"></div>
-                                            </div>
-                                            <div class="bar-count text-muted small">{{ star_counts.4 }}</div>
-                                        </div>
-                                        <div class="d-flex align-items-center gap-2 mb-2">
-                                            <div class="bar-label">3 sao</div>
-                                            <div class="progress flex-grow-1" style="height: 8px;">
-                                                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ star_percent.3|floatformat:0 }}%"></div>
-                                            </div>
-                                            <div class="bar-count text-muted small">{{ star_counts.3 }}</div>
-                                        </div>
-                                        <div class="d-flex align-items-center gap-2 mb-2">
-                                            <div class="bar-label">2 sao</div>
-                                            <div class="progress flex-grow-1" style="height: 8px;">
-                                                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ star_percent.2|floatformat:0 }}%"></div>
-                                            </div>
-                                            <div class="bar-count text-muted small">{{ star_counts.2 }}</div>
-                                        </div>
-                                        <div class="d-flex align-items-center gap-2 mb-2">
-                                            <div class="bar-label">1 sao</div>
-                                            <div class="progress flex-grow-1" style="height: 8px;">
-                                                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ star_percent.1|floatformat:0 }}%"></div>
-                                            </div>
-                                            <div class="bar-count text-muted small">{{ star_counts.1 }}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-7">
-                                    <div class="review-filters d-flex flex-wrap gap-2">
-                                        <a class="btn btn-sm {% if not filters.rating and not filters.has_comment and not filters.has_image %}btn-danger{% else %}btn-outline-danger{% endif %}"
-                                           href="{% url 'detail' %}?id={{ product.id }}&sort={{ filters.sort|default:'newest' }}">Tất cả</a>
-                                        <a class="btn btn-sm {% if filters.rating == '5' %}btn-danger{% else %}btn-outline-danger{% endif %}"
-                                           href="{% url 'detail' %}?id={{ product.id }}&rating=5&sort={{ filters.sort|default:'newest' }}">5 Sao</a>
-                                        <a class="btn btn-sm {% if filters.rating == '4' %}btn-danger{% else %}btn-outline-danger{% endif %}"
-                                           href="{% url 'detail' %}?id={{ product.id }}&rating=4&sort={{ filters.sort|default:'newest' }}">4 Sao</a>
-                                        <a class="btn btn-sm {% if filters.rating == '3' %}btn-danger{% else %}btn-outline-danger{% endif %}"
-                                           href="{% url 'detail' %}?id={{ product.id }}&rating=3&sort={{ filters.sort|default:'newest' }}">3 Sao</a>
-                                        <a class="btn btn-sm {% if filters.has_comment == '1' %}btn-danger{% else %}btn-outline-danger{% endif %}"
-                                           href="{% url 'detail' %}?id={{ product.id }}&has_comment=1&sort={{ filters.sort|default:'newest' }}">Có bình luận</a>
-                                        <a class="btn btn-sm {% if filters.has_image == '1' %}btn-danger{% else %}btn-outline-danger{% endif %}"
-                                           href="{% url 'detail' %}?id={{ product.id }}&has_image=1&sort={{ filters.sort|default:'newest' }}">Có hình ảnh</a>
-                                    </div>
-
-                                    <div class="review-sort mt-3 d-flex flex-wrap gap-2 align-items-center">
-                                        <span class="text-muted small">Sắp xếp:</span>
-                                        <a class="btn btn-sm {% if filters.sort == 'newest' %}btn-dark{% else %}btn-outline-dark{% endif %}"
-                                           href="{% url 'detail' %}?id={{ product.id }}&sort=newest">Mới nhất</a>
-                                        <a class="btn btn-sm {% if filters.sort == 'highest' %}btn-dark{% else %}btn-outline-dark{% endif %}"
-                                           href="{% url 'detail' %}?id={{ product.id }}&sort=highest">Cao nhất</a>
-                                        <a class="btn btn-sm {% if filters.sort == 'lowest' %}btn-dark{% else %}btn-outline-dark{% endif %}"
-                                           href="{% url 'detail' %}?id={{ product.id }}&sort=lowest">Thấp nhất</a>
-                                        <a class="btn btn-sm {% if filters.sort == 'helpful' %}btn-dark{% else %}btn-outline-dark{% endif %}"
-                                           href="{% url 'detail' %}?id={{ product.id }}&sort=helpful">Hữu ích nhất</a>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <hr class="my-4" />
-
-                            <div class="review-form-wrap">
-                                {% if request.user.is_authenticated %}
-                                    {% if can_review %}
-                                        {% if user_review %}
-                                            <div class="alert alert-info mb-3">
-                                                Bạn đã đánh giá sản phẩm này. Bạn có thể chỉnh sửa đánh giá của mình bên dưới.
-                                            </div>
-                                            <form method="POST" action="{% url 'edit_review' product.id %}" enctype="multipart/form-data" class="review-form" novalidate>
-                                                {% csrf_token %}
-                                                {% if edit_review_form %}
-                                                    {% if edit_review_form.non_field_errors %}
-                                                        <div class="alert alert-danger mb-2">{{ edit_review_form.non_field_errors }}</div>
-                                                    {% endif %}
-                                                {% endif %}
-                                                <input type="hidden" name="rating" id="rating-input" value="{% if edit_review_form %}{{ edit_review_form.rating.value|default:user_review.rating }}{% else %}{{ user_review.rating }}{% endif %}" />
-                                                <div class="mb-2">
-                                                    <label class="small text-muted mb-1">Số sao</label>
-                                                    <div class="star-picker" data-initial="{% if edit_review_form %}{{ edit_review_form.rating.value|default:user_review.rating }}{% else %}{{ user_review.rating }}{% endif %}">
-                                                        {% for i in "12345" %}
-                                                        <button type="button" class="star-btn" data-value="{{ forloop.counter }}">★</button>
-                                                        {% endfor %}
-                                                    </div>
-                                                    {% if edit_review_form and edit_review_form.errors.rating %}
-                                                        <div class="text-danger small mt-1">{{ edit_review_form.errors.rating }}</div>
-                                                    {% endif %}
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="small text-muted mb-1">Nội dung</label>
-                                                    {% if edit_review_form %}
-                                                        {{ edit_review_form.comment }}
-                                                        {% if edit_review_form.errors.comment %}
-                                                            <div class="text-danger small mt-1">{{ edit_review_form.errors.comment }}</div>
-                                                        {% endif %}
-                                                    {% else %}
-                                                        <textarea class="form-control" name="comment" rows="4">{{ user_review.comment }}</textarea>
-                                                    {% endif %}
-                                                </div>
-                                                {% if user_review.images.count %}
-                                                <div class="mb-3">
-                                                    <label class="small text-muted mb-2">Ảnh đã đăng (tick để xoá)</label>
-                                                    <div class="review-images">
-                                                        {% for img in user_review.images.all %}
-                                                        <label class="review-image-thumb d-inline-block me-2 mb-2" style="cursor:pointer;">
-                                                            <input type="checkbox" name="delete_image_ids" value="{{ img.id }}" class="form-check-input me-1" />
-                                                            <img src="{{ img.image.url }}" alt="review image" />
-                                                        </label>
-                                                        {% endfor %}
-                                                    </div>
-                                                </div>
-                                                {% endif %}
-                                                <div class="mb-3">
-                                                    <label class="small text-muted mb-1">Ảnh (tối đa 6)</label>
-                                                    {% if edit_review_form %}
-                                                        <input class="form-control" type="file" name="images" multiple accept="image/*" style="display:block !important;" />
-                                                        {% if edit_review_form.errors.images %}
-                                                            <div class="text-danger small mt-1">{{ edit_review_form.errors.images }}</div>
-                                                        {% endif %}
-                                                    {% else %}
-                                                        <input class="form-control" type="file" name="images" multiple accept="image/*" id="review-images" />
-                                                    {% endif %}
-                                                    <div class="review-image-preview mt-2 review-preview"></div>
-                                                </div>
-                                                <button class="btn btn-primary" type="submit">Cập nhật đánh giá</button>
-                                            </form>
-                                        {% else %}
-                                            <form method="POST" action="{% url 'add_review' %}" enctype="multipart/form-data" class="review-form" novalidate>
-                                                {% csrf_token %}
-                                                <input type="hidden" name="product_id" value="{{ product.id }}" />
-                                                {% if add_review_form %}
-                                                    {% if add_review_form.non_field_errors %}
-                                                        <div class="alert alert-danger mb-2">{{ add_review_form.non_field_errors }}</div>
-                                                    {% endif %}
-                                                {% endif %}
-                                                <input type="hidden" name="rating" id="rating-input" value="{% if add_review_form %}{{ add_review_form.rating.value }}{% endif %}" />
-                                                <div class="mb-2">
-                                                    <label class="small text-muted mb-1">Số sao</label>
-                                                    <div class="star-picker" data-initial="{% if add_review_form and add_review_form.rating.value %}{{ add_review_form.rating.value }}{% else %}0{% endif %}">
-                                                        {% for i in "12345" %}
-                                                        <button type="button" class="star-btn" data-value="{{ forloop.counter }}">★</button>
-                                                        {% endfor %}
-                                                    </div>
-                                                    <div class="text-muted small mt-1">Chọn số sao từ 1 đến 5.</div>
-                                                    {% if add_review_form and add_review_form.errors.rating %}
-                                                        <div class="text-danger small mt-1">{{ add_review_form.errors.rating }}</div>
-                                                    {% endif %}
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="small text-muted mb-1">Nội dung</label>
-                                                    {% if add_review_form %}
-                                                        {{ add_review_form.comment }}
-                                                        {% if add_review_form.errors.comment %}
-                                                            <div class="text-danger small mt-1">{{ add_review_form.errors.comment }}</div>
-                                                        {% endif %}
-                                                    {% else %}
-                                                        <textarea class="form-control" name="comment" rows="4" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
-                                                    {% endif %}
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="small text-muted mb-1">Ảnh (tối đa 6)</label>
-                                                    {% if add_review_form %}
-                                                        <input class="form-control" type="file" name="images" multiple accept="image/*" style="display:block !important;" />
-                                                        {% if add_review_form.errors.images %}
-                                                            <div class="text-danger small mt-1">{{ add_review_form.errors.images }}</div>
-                                                        {% endif %}
-                                                    {% else %}
-                                                        <input class="form-control" type="file" name="images" multiple accept="image/*" id="review-images" />
-                                                    {% endif %}
-                                                    <div class="review-image-preview mt-2 review-preview"></div>
-                                                </div>
-                                                <button class="btn btn-primary" type="submit">Gửi đánh giá</button>
-                                            </form>
-                                        {% endif %}
-                                    {% else %}
-                                        <div class="alert alert-warning">
-                                            Bạn chỉ có thể đánh giá sau khi đã mua và đơn hàng hoàn tất.
-                                        </div>
-                                    {% endif %}
-                                {% else %}
-                                    <div class="alert alert-warning">
-                                        Vui lòng <a href="{% url 'login' %}">đăng nhập</a> để đánh giá.
-                                    </div>
-                                {% endif %}
-                            </div>
-
-                            <hr class="my-4" />
-
-                            {% if reviews %}
-                                {% for r in reviews %}
-                                <div class="review-item mb-4">
-                                    <div class="d-flex justify-content-between gap-2">
-                                        <div class="d-flex align-items-center gap-2">
-                                            {% if r.user and r.user.profile and r.user.profile.avatar %}
-                                                <img class="review-avatar" src="{{ r.user.profile.avatar.url }}" alt="avatar" />
-                                            {% else %}
-                                                <div class="review-avatar-placeholder"><i class="fa-solid fa-user"></i></div>
-                                            {% endif %}
-                                            <div>
-                                                <div class="review-user">
-                                                    <strong>{{ r.user.username|default:r.name|default:"Ẩn danh" }}</strong>
-                                                    {% if r.is_verified_purchase %}
-                                                        <span class="badge text-bg-success ms-1">Đã mua hàng</span>
-                                                    {% endif %}
-                                                    {% if r.is_edited %}
-                                                        <span class="text-muted small ms-1">(đã sửa)</span>
-                                                    {% endif %}
-                                                </div>
-                                                <div class="text-muted small">{{ r.created_at|date:"d/m/Y H:i" }}</div>
-                                            </div>
-                                        </div>
-                                        <div class="text-warning review-stars">
-                                            {% for _ in "12345" %}
-                                                {% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-2 review-comment">{{ r.comment }}</div>
-
-                                    {% if r.images.count %}
-                                    <div class="review-images mt-2">
-                                        {% for img in r.images.all %}
-                                            <a href="{{ img.image.url }}" target="_blank" class="review-image-thumb">
-                                                <img src="{{ img.image.url }}" alt="review image" />
-                                            </a>
-                                        {% endfor %}
-                                    </div>
-                                    {% endif %}
-
-                                    <div class="review-actions mt-2">
-                                        <button class="btn btn-sm btn-outline-secondary helpful-btn"
-                                                data-review-id="{{ r.id }}"
-                                                data-url="{% url 'toggle_helpful_review' r.id %}">
-                                            Hữu ích (<span class="helpful-count">{{ r.helpful_count }}</span>)
-                                        </button>
-                                    </div>
-                                </div>
-                                {% endfor %}
-
-                                {% if page_obj %}
-                                <nav aria-label="Review pagination">
-                                    <ul class="pagination">
-                                        {% if page_obj.has_previous %}
-                                            <li class="page-item"><a class="page-link" href="?id={{ product.id }}&page={{ page_obj.previous_page_number }}&rating={{ filters.rating }}&has_comment={{ filters.has_comment }}&has_image={{ filters.has_image }}&sort={{ filters.sort }}">Trước</a></li>
-                                        {% else %}
-                                            <li class="page-item disabled"><span class="page-link">Trước</span></li>
-                                        {% endif %}
-
-                                        <li class="page-item active"><span class="page-link">{{ page_obj.number }}/{{ page_obj.paginator.num_pages }}</span></li>
-
-                                        {% if page_obj.has_next %}
-                                            <li class="page-item"><a class="page-link" href="?id={{ product.id }}&page={{ page_obj.next_page_number }}&rating={{ filters.rating }}&has_comment={{ filters.has_comment }}&has_image={{ filters.has_image }}&sort={{ filters.sort }}">Sau</a></li>
-                                        {% else %}
-                                            <li class="page-item disabled"><span class="page-link">Sau</span></li>
-                                        {% endif %}
-                                    </ul>
-                                </nav>
-                                {% endif %}
-                            {% else %}
-                                <div class="text-muted">Chưa có đánh giá nào. Hãy là người đầu tiên!</div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
+  {% for product in products %}
+  <section class="pd-page">
+    <div class="container pd-container">
+      <!-- Breadcrumb + quick actions -->
+      <div class="pd-topbar">
+        <div class="pd-bc">
+          <a class="pd-bc__link" href="{% url 'home' %}">Trang chủ</a>
+          <span class="pd-bc__sep">/</span>
+          <a class="pd-bc__link" href="{% url 'search' %}">Sản phẩm</a>
+          <span class="pd-bc__sep">/</span>
+          <span class="pd-bc__current" title="{{ product.name }}">{{ product.name }}</span>
         </div>
-        {% endfor %}
-        {% endblock search %}
-    </body>
-</html>
+        <div class="pd-topbar__actions">
+          <a class="pd-link" href="{% url 'cart' %}">
+            <i class="fa-solid fa-cart-shopping me-1"></i>
+            Xem giỏ
+          </a>
+          <a class="pd-link" href="{% url 'home' %}">
+            <i class="fa-solid fa-chevron-left me-1"></i>
+            Quay lại
+          </a>
+        </div>
+      </div>
+
+      <!-- MAIN CARD -->
+      <div class="pd-card">
+        <div class="row g-0">
+          <!-- Left: Gallery -->
+          <div class="col-12 col-lg-5">
+            <div class="pd-gallery">
+              <div class="pd-gallery__main">
+                <img class="pd-mainimg" id="pd-mainimg" src="{{ product.ImageUrl }}" alt="{{ product.name }}">
+              </div>
+              <div class="pd-gallery__thumbs" aria-label="Ảnh thu nhỏ">
+                <button type="button" class="pd-thumb is-active" data-thumb="{{ product.ImageUrl }}" aria-label="Ảnh 1">
+                  <img src="{{ product.ImageUrl }}" alt="{{ product.name }} thumbnail">
+                </button>
+              </div>
+
+              <div class="pd-gallery__share">
+                <div class="pd-share">
+                  <span class="pd-share__label">Chia sẻ:</span>
+                  <button type="button" class="pd-share__btn" data-share="copy" title="Copy link" aria-label="Copy link">
+                    <i class="fa-regular fa-copy"></i>
+                  </button>
+                  <button type="button" class="pd-share__btn" data-share="fb" title="Facebook" aria-label="Facebook">
+                    <i class="fa-brands fa-facebook"></i>
+                  </button>
+                  <button type="button" class="pd-share__btn" data-share="mess" title="Messenger" aria-label="Messenger">
+                    <i class="fa-brands fa-facebook-messenger"></i>
+                  </button>
+                </div>
+                <button type="button" class="pd-liked" data-like="toggle" aria-pressed="false">
+                  <i class="fa-regular fa-heart"></i>
+                  <span class="pd-liked__text">Yêu thích</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Info -->
+          <div class="col-12 col-lg-7">
+            <div class="pd-info">
+              <div class="pd-titlewrap">
+                <h1 class="pd-title">{{ product.name }}</h1>
+                <div class="pd-icons">
+                  <button type="button" class="pd-iconbtn" aria-label="Yêu thích" title="Yêu thích">
+                    <i class="fa-regular fa-heart"></i>
+                  </button>
+                  <button type="button" class="pd-iconbtn" aria-label="Chia sẻ" title="Chia sẻ" onclick="navigator.clipboard && navigator.clipboard.writeText(window.location.href)">
+                    <i class="fa-solid fa-share-nodes"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="pd-ratingrow">
+                <div class="pd-rating">
+                  <span class="pd-rating__score">{{ avg_rating|floatformat:1 }}</span>
+                  <span class="pd-rating__stars text-warning">
+                    {% for _ in "12345" %}
+                      {% if forloop.counter <= avg_rating|floatformat:0 %}★{% else %}☆{% endif %}
+                    {% endfor %}
+                  </span>
+                </div>
+                <div class="pd-rating__sep"></div>
+                <a class="pd-rating__link" href="#pd-reviews">{{ review_count }} Đánh giá</a>
+                <div class="pd-rating__sep"></div>
+                <span class="pd-muted">Đồ ăn nóng • Làm mới mỗi ngày</span>
+              </div>
+
+              <!-- Price block -->
+              <div class="pd-pricebox">
+                <div class="pd-price">
+                  {{ product.price|intcomma }}<span class="pd-currency">đ</span>
+                </div>
+                <div class="pd-submeta">
+                  <span class="pd-chip">
+                    <i class="fa-solid fa-bolt me-1"></i> Deal hôm nay
+                  </span>
+                  <span class="pd-muted">
+                    <i class="fa-solid fa-shield-halved me-1"></i> Cam kết chất lượng
+                  </span>
+                </div>
+              </div>
+
+              <div class="pd-infobox">
+                <div class="pd-infobox__row">
+                  <div class="pd-infobox__label">Vận chuyển</div>
+                  <div class="pd-infobox__value">
+                    <div class="pd-shipline">
+                      <i class="fa-solid fa-motorcycle"></i>
+                      <span>Nhận trong khoảng <strong>20–45 phút</strong> (tuỳ khu vực)</span>
+                    </div>
+                    <div class="pd-shipline pd-shipline--sub">
+                      <i class="fa-solid fa-ticket"></i>
+                      <span>Miễn phí ship khi đủ điều kiện áp dụng</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="pd-infobox__row">
+                  <div class="pd-infobox__label">An tâm mua</div>
+                  <div class="pd-infobox__value">
+                    <div class="pd-shipline">
+                      <i class="fa-solid fa-rotate"></i>
+                      <span>Hỗ trợ đổi/hoàn nếu <strong>món lỗi</strong> hoặc <strong>không đúng mô tả</strong></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Short summary (reuse detail, but clamp to look clean) -->
+              <div class="pd-summary">
+                <div class="pd-summary__label">Tóm tắt</div>
+                <div class="pd-summary__text">{{ product.detail }}</div>
+              </div>
+
+              <!-- Quantity + actions -->
+              <div class="pd-buy">
+                <div class="pd-row">
+                  <div class="pd-row__label">Số lượng</div>
+                  <div class="pd-row__value">
+                    <div class="pd-qty">
+                      <button type="button" class="pd-qty__btn" data-qty="minus" aria-label="Giảm">−</button>
+                      <input class="pd-qty__input" type="text" inputmode="numeric" value="1" min="1" max="99" aria-label="Số lượng">
+                      <button type="button" class="pd-qty__btn" data-qty="plus" aria-label="Tăng">+</button>
+                    </div>
+                    <div class="pd-muted small ms-2">Tối đa 99</div>
+                  </div>
+                </div>
+
+                <div class="pd-actions">
+                  <!-- Giữ nút cũ (update-cart) để không phá logic: add 1 -->
+                  <button data-product="{{ product.id }}" data-action="add" class="btn pd-btn pd-btn--ghost update-cart">
+                    <i class="fa-solid fa-cart-plus me-2"></i>
+                    Thêm 1 vào giỏ
+                  </button>
+
+                  <!-- Nút mới: add theo số lượng -->
+                  <button data-product="{{ product.id }}" data-pd-action="add" class="btn pd-btn pd-btn--primary">
+                    <i class="fa-solid fa-cart-shopping me-2"></i>
+                    Thêm vào giỏ
+                  </button>
+
+                  <button data-product="{{ product.id }}" data-pd-action="buy" class="btn pd-btn pd-btn--buy">
+                    <i class="fa-solid fa-bolt me-2"></i>
+                    Mua ngay
+                  </button>
+                </div>
+
+                <!-- Ecommerce policies (static, gọn) -->
+                <div class="pd-policies">
+                  <div class="pd-policy">
+                    <div class="pd-policy__icon"><i class="fa-solid fa-truck-fast"></i></div>
+                    <div>
+                      <div class="pd-policy__title">Giao nhanh</div>
+                      <div class="pd-policy__desc">Nhận hàng tuỳ khu vực • Theo giờ hoạt động cửa hàng.</div>
+                    </div>
+                  </div>
+                  <div class="pd-policy">
+                    <div class="pd-policy__icon"><i class="fa-solid fa-rotate"></i></div>
+                    <div>
+                      <div class="pd-policy__title">Đổi trả hợp lý</div>
+                      <div class="pd-policy__desc">Hỗ trợ khi sản phẩm lỗi/không đúng mô tả.</div>
+                    </div>
+                  </div>
+                  <div class="pd-policy">
+                    <div class="pd-policy__icon"><i class="fa-solid fa-money-bill-wave"></i></div>
+                    <div>
+                      <div class="pd-policy__title">Thanh toán linh hoạt</div>
+                      <div class="pd-policy__desc">Thanh toán khi nhận hàng (tuỳ đơn) và các phương thức khác.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="pd-section">
+        <div class="pd-section__head">
+          <div class="pd-section__title">
+            <i class="fa-solid fa-file-lines me-2"></i>
+            Mô tả sản phẩm
+          </div>
+        </div>
+        <div class="pd-section__body">
+          <div class="pd-desc">
+            {{ product.detail|linebreaksbr }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Reviews (giữ nguyên logic, chỉ bọc layout) -->
+      <div class="pd-section" id="pd-reviews">
+        <div class="pd-section__head">
+          <div class="pd-section__title">
+            <i class="fa-solid fa-star me-2"></i>
+            Đánh giá sản phẩm
+          </div>
+          <div class="pd-section__meta text-muted small">{{ review_count }} đánh giá</div>
+        </div>
+        <div class="pd-section__body">
+          <div class="review-header d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div>
+              <div class="text-muted small">Điểm trung bình</div>
+            </div>
+            <div class="review-avg text-md-end">
+              <div class="avg-score">
+                <span class="score">{{ avg_rating|floatformat:1 }}</span><span class="out-of">/5</span>
+              </div>
+              <div class="stars text-warning">
+                {% for _ in "12345" %}
+                  {% if forloop.counter <= avg_rating|floatformat:0 %}★{% else %}☆{% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-2">
+            <div class="col-12 col-md-5">
+              <div class="rating-bars">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <div class="bar-label">5 sao</div>
+                  <div class="progress flex-grow-1" style="height: 8px;">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ star_percent.5|floatformat:0 }}%"></div>
+                  </div>
+                  <div class="bar-count text-muted small">{{ star_counts.5 }}</div>
+                </div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <div class="bar-label">4 sao</div>
+                  <div class="progress flex-grow-1" style="height: 8px;">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ star_percent.4|floatformat:0 }}%"></div>
+                  </div>
+                  <div class="bar-count text-muted small">{{ star_counts.4 }}</div>
+                </div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <div class="bar-label">3 sao</div>
+                  <div class="progress flex-grow-1" style="height: 8px;">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ star_percent.3|floatformat:0 }}%"></div>
+                  </div>
+                  <div class="bar-count text-muted small">{{ star_counts.3 }}</div>
+                </div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <div class="bar-label">2 sao</div>
+                  <div class="progress flex-grow-1" style="height: 8px;">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ star_percent.2|floatformat:0 }}%"></div>
+                  </div>
+                  <div class="bar-count text-muted small">{{ star_counts.2 }}</div>
+                </div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <div class="bar-label">1 sao</div>
+                  <div class="progress flex-grow-1" style="height: 8px;">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ star_percent.1|floatformat:0 }}%"></div>
+                  </div>
+                  <div class="bar-count text-muted small">{{ star_counts.1 }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-7">
+              <div class="review-filters d-flex flex-wrap gap-2">
+                <a class="btn btn-sm {% if not filters.rating and not filters.has_comment and not filters.has_image %}btn-danger{% else %}btn-outline-danger{% endif %}"
+                  href="{% url 'detail' %}?id={{ product.id }}&sort={{ filters.sort|default:'newest' }}">Tất cả</a>
+                <a class="btn btn-sm {% if filters.rating == '5' %}btn-danger{% else %}btn-outline-danger{% endif %}"
+                  href="{% url 'detail' %}?id={{ product.id }}&rating=5&sort={{ filters.sort|default:'newest' }}">5 Sao</a>
+                <a class="btn btn-sm {% if filters.rating == '4' %}btn-danger{% else %}btn-outline-danger{% endif %}"
+                  href="{% url 'detail' %}?id={{ product.id }}&rating=4&sort={{ filters.sort|default:'newest' }}">4 Sao</a>
+                <a class="btn btn-sm {% if filters.rating == '3' %}btn-danger{% else %}btn-outline-danger{% endif %}"
+                  href="{% url 'detail' %}?id={{ product.id }}&rating=3&sort={{ filters.sort|default:'newest' }}">3 Sao</a>
+                <a class="btn btn-sm {% if filters.has_comment == '1' %}btn-danger{% else %}btn-outline-danger{% endif %}"
+                  href="{% url 'detail' %}?id={{ product.id }}&has_comment=1&sort={{ filters.sort|default:'newest' }}">Có bình luận</a>
+                <a class="btn btn-sm {% if filters.has_image == '1' %}btn-danger{% else %}btn-outline-danger{% endif %}"
+                  href="{% url 'detail' %}?id={{ product.id }}&has_image=1&sort={{ filters.sort|default:'newest' }}">Có hình ảnh</a>
+              </div>
+
+              <div class="review-sort mt-3 d-flex flex-wrap gap-2 align-items-center">
+                <span class="text-muted small">Sắp xếp:</span>
+                <a class="btn btn-sm {% if filters.sort == 'newest' %}btn-dark{% else %}btn-outline-dark{% endif %}"
+                  href="{% url 'detail' %}?id={{ product.id }}&sort=newest">Mới nhất</a>
+                <a class="btn btn-sm {% if filters.sort == 'highest' %}btn-dark{% else %}btn-outline-dark{% endif %}"
+                  href="{% url 'detail' %}?id={{ product.id }}&sort=highest">Cao nhất</a>
+                <a class="btn btn-sm {% if filters.sort == 'lowest' %}btn-dark{% else %}btn-outline-dark{% endif %}"
+                  href="{% url 'detail' %}?id={{ product.id }}&sort=lowest">Thấp nhất</a>
+                <a class="btn btn-sm {% if filters.sort == 'helpful' %}btn-dark{% else %}btn-outline-dark{% endif %}"
+                  href="{% url 'detail' %}?id={{ product.id }}&sort=helpful">Hữu ích nhất</a>
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-4" />
+
+          <div class="review-form-wrap">
+            {% if request.user.is_authenticated %}
+              {% if can_review %}
+                {% if user_review %}
+                  <div class="alert alert-info mb-3">
+                    Bạn đã đánh giá sản phẩm này. Bạn có thể chỉnh sửa đánh giá của mình bên dưới.
+                  </div>
+                  <form method="POST" action="{% url 'edit_review' product.id %}" enctype="multipart/form-data" class="review-form" novalidate>
+                    {% csrf_token %}
+                    {% if edit_review_form %}
+                      {% if edit_review_form.non_field_errors %}
+                        <div class="alert alert-danger mb-2">{{ edit_review_form.non_field_errors }}</div>
+                      {% endif %}
+                    {% endif %}
+                    <input type="hidden" name="rating" id="rating-input" value="{% if edit_review_form %}{{ edit_review_form.rating.value|default:user_review.rating }}{% else %}{{ user_review.rating }}{% endif %}" />
+                    <div class="mb-2">
+                      <label class="small text-muted mb-1">Số sao</label>
+                      <div class="star-picker" data-initial="{% if edit_review_form %}{{ edit_review_form.rating.value|default:user_review.rating }}{% else %}{{ user_review.rating }}{% endif %}">
+                        {% for i in "12345" %}
+                        <button type="button" class="star-btn" data-value="{{ forloop.counter }}">★</button>
+                        {% endfor %}
+                      </div>
+                      {% if edit_review_form and edit_review_form.errors.rating %}
+                        <div class="text-danger small mt-1">{{ edit_review_form.errors.rating }}</div>
+                      {% endif %}
+                    </div>
+                    <div class="mb-3">
+                      <label class="small text-muted mb-1">Nội dung</label>
+                      {% if edit_review_form %}
+                        {{ edit_review_form.comment }}
+                        {% if edit_review_form.errors.comment %}
+                          <div class="text-danger small mt-1">{{ edit_review_form.errors.comment }}</div>
+                        {% endif %}
+                      {% else %}
+                        <textarea class="form-control" name="comment" rows="4">{{ user_review.comment }}</textarea>
+                      {% endif %}
+                    </div>
+                    {% if user_review.images.count %}
+                    <div class="mb-3">
+                      <label class="small text-muted mb-2">Ảnh đã đăng (tick để xoá)</label>
+                      <div class="review-images">
+                        {% for img in user_review.images.all %}
+                        <label class="review-image-thumb d-inline-block me-2 mb-2" style="cursor:pointer;">
+                          <input type="checkbox" name="delete_image_ids" value="{{ img.id }}" class="form-check-input me-1" />
+                          <img src="{{ img.image.url }}" alt="review image" />
+                        </label>
+                        {% endfor %}
+                      </div>
+                    </div>
+                    {% endif %}
+                    <div class="mb-3">
+                      <label class="small text-muted mb-1">Ảnh (tối đa 6)</label>
+                      {% if edit_review_form %}
+                        <input class="form-control" type="file" name="images" multiple accept="image/*" style="display:block !important;" />
+                        {% if edit_review_form.errors.images %}
+                          <div class="text-danger small mt-1">{{ edit_review_form.errors.images }}</div>
+                        {% endif %}
+                      {% else %}
+                        <input class="form-control" type="file" name="images" multiple accept="image/*" id="review-images" />
+                      {% endif %}
+                      <div class="review-image-preview mt-2 review-preview"></div>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Cập nhật đánh giá</button>
+                  </form>
+                {% else %}
+                  <form method="POST" action="{% url 'add_review' %}" enctype="multipart/form-data" class="review-form" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" name="product_id" value="{{ product.id }}" />
+                    {% if add_review_form %}
+                      {% if add_review_form.non_field_errors %}
+                        <div class="alert alert-danger mb-2">{{ add_review_form.non_field_errors }}</div>
+                      {% endif %}
+                    {% endif %}
+                    <input type="hidden" name="rating" id="rating-input" value="{% if add_review_form %}{{ add_review_form.rating.value }}{% endif %}" />
+                    <div class="mb-2">
+                      <label class="small text-muted mb-1">Số sao</label>
+                      <div class="star-picker" data-initial="{% if add_review_form and add_review_form.rating.value %}{{ add_review_form.rating.value }}{% else %}0{% endif %}">
+                        {% for i in "12345" %}
+                        <button type="button" class="star-btn" data-value="{{ forloop.counter }}">★</button>
+                        {% endfor %}
+                      </div>
+                      <div class="text-muted small mt-1">Chọn số sao từ 1 đến 5.</div>
+                      {% if add_review_form and add_review_form.errors.rating %}
+                        <div class="text-danger small mt-1">{{ add_review_form.errors.rating }}</div>
+                      {% endif %}
+                    </div>
+                    <div class="mb-3">
+                      <label class="small text-muted mb-1">Nội dung</label>
+                      {% if add_review_form %}
+                        {{ add_review_form.comment }}
+                        {% if add_review_form.errors.comment %}
+                          <div class="text-danger small mt-1">{{ add_review_form.errors.comment }}</div>
+                        {% endif %}
+                      {% else %}
+                        <textarea class="form-control" name="comment" rows="4" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+                      {% endif %}
+                    </div>
+                    <div class="mb-3">
+                      <label class="small text-muted mb-1">Ảnh (tối đa 6)</label>
+                      {% if add_review_form %}
+                        <input class="form-control" type="file" name="images" multiple accept="image/*" style="display:block !important;" />
+                        {% if add_review_form.errors.images %}
+                          <div class="text-danger small mt-1">{{ add_review_form.errors.images }}</div>
+                        {% endif %}
+                      {% else %}
+                        <input class="form-control" type="file" name="images" multiple accept="image/*" id="review-images" />
+                      {% endif %}
+                      <div class="review-image-preview mt-2 review-preview"></div>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Gửi đánh giá</button>
+                  </form>
+                {% endif %}
+              {% else %}
+                <div class="alert alert-warning">
+                  Bạn chỉ có thể đánh giá sau khi đã mua và đơn hàng hoàn tất.
+                </div>
+              {% endif %}
+            {% else %}
+              <div class="alert alert-warning">
+                Vui lòng <a href="{% url 'login' %}">đăng nhập</a> để đánh giá.
+              </div>
+            {% endif %}
+          </div>
+
+          <hr class="my-4" />
+
+          {% if reviews %}
+            {% for r in reviews %}
+            <div class="review-item mb-4">
+              <div class="d-flex justify-content-between gap-2">
+                <div class="d-flex align-items-center gap-2">
+                  {% if r.user and r.user.profile and r.user.profile.avatar %}
+                    <img class="review-avatar" src="{{ r.user.profile.avatar.url }}" alt="avatar" />
+                  {% else %}
+                    <div class="review-avatar-placeholder"><i class="fa-solid fa-user"></i></div>
+                  {% endif %}
+                  <div>
+                    <div class="review-user">
+                      <strong>{{ r.user.username|default:r.name|default:"Ẩn danh" }}</strong>
+                      {% if r.is_verified_purchase %}
+                        <span class="badge text-bg-success ms-1">Đã mua hàng</span>
+                      {% endif %}
+                      {% if r.is_edited %}
+                        <span class="text-muted small ms-1">(đã sửa)</span>
+                      {% endif %}
+                    </div>
+                    <div class="text-muted small">{{ r.created_at|date:"d/m/Y H:i" }}</div>
+                  </div>
+                </div>
+                <div class="text-warning review-stars">
+                  {% for _ in "12345" %}
+                    {% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+
+              <div class="mt-2 review-comment">{{ r.comment }}</div>
+
+              {% if r.images.count %}
+              <div class="review-images mt-2">
+                {% for img in r.images.all %}
+                  <a href="{{ img.image.url }}" target="_blank" class="review-image-thumb">
+                    <img src="{{ img.image.url }}" alt="review image" />
+                  </a>
+                {% endfor %}
+              </div>
+              {% endif %}
+
+              <div class="review-actions mt-2">
+                <button class="btn btn-sm btn-outline-secondary helpful-btn"
+                  data-review-id="{{ r.id }}"
+                  data-url="{% url 'toggle_helpful_review' r.id %}">
+                  Hữu ích (<span class="helpful-count">{{ r.helpful_count }}</span>)
+                </button>
+              </div>
+            </div>
+            {% endfor %}
+
+            {% if page_obj %}
+            <nav aria-label="Review pagination">
+              <ul class="pagination">
+                {% if page_obj.has_previous %}
+                  <li class="page-item"><a class="page-link" href="?id={{ product.id }}&page={{ page_obj.previous_page_number }}&rating={{ filters.rating }}&has_comment={{ filters.has_comment }}&has_image={{ filters.has_image }}&sort={{ filters.sort }}">Trước</a></li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">Trước</span></li>
+                {% endif %}
+
+                <li class="page-item active"><span class="page-link">{{ page_obj.number }}/{{ page_obj.paginator.num_pages }}</span></li>
+
+                {% if page_obj.has_next %}
+                  <li class="page-item"><a class="page-link" href="?id={{ product.id }}&page={{ page_obj.next_page_number }}&rating={{ filters.rating }}&has_comment={{ filters.has_comment }}&has_image={{ filters.has_image }}&sort={{ filters.sort }}">Sau</a></li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">Sau</span></li>
+                {% endif %}
+              </ul>
+            </nav>
+            {% endif %}
+          {% else %}
+            <div class="text-muted">Chưa có đánh giá nào. Hãy là người đầu tiên!</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Related / suggested -->
+      {% if suggested_products %}
+      <div class="pd-section">
+        <div class="pd-section__head">
+          <div class="pd-section__title">
+            <i class="fa-solid fa-thumbs-up me-2"></i>
+            Có thể bạn cũng thích
+          </div>
+          <a class="pd-link" href="{% url 'search' %}">Xem thêm</a>
+        </div>
+        <div class="pd-section__body">
+          <div class="pd-related">
+            {% for p in suggested_products %}
+              <div class="p-card">
+                <a class="p-card__media" href="{% url 'detail' %}?id={{p.id}}">
+                  <img class="p-card__img" src="{{p.ImageUrl}}" alt="{{ p.name }}">
+                </a>
+                <div class="p-card__body">
+                  <a class="p-card__name" href="{% url 'detail' %}?id={{p.id}}" title="{{ p.name }}">
+                    {{p.name}}
+                  </a>
+                  <div class="p-card__bottom">
+                    <div class="p-card__price">
+                      {{p.price|intcomma}} <span class="home-money">VNĐ</span>
+                    </div>
+                    <div class="p-card__actions">
+                      <button data-product="{{p.id}}" data-action="add" class="btn p-card__btn p-card__btn--cart update-cart">
+                        Thêm giỏ
+                      </button>
+                      <a class="btn p-card__btn p-card__btn--view" href="{% url 'detail' %}?id={{p.id}}">
+                        Xem
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </section>
+  {% endfor %}
+{% endblock search %}

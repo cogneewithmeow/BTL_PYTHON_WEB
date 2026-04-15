@@ -1,172 +1,102 @@
 {% extends "app/base.html" %}
 {% load static %}
 {% load humanize %}
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
-    </head>
-    <body>
-        {% block profile %}
-        <section style="background-color: #eee;">
-            <div class="container py-5">
-                <div class="row">
-                    <div class="col-lg-4">
-                        <div class="card mb-4">
-                            <div class="card-body text-center">
-                                <img src="{{ user.profile.avatar.url }}" class= "avatar-profile">
-                                <h5 class="my-3 name">{{user.username}}</h5>
-                                <div class="d-flex justify-content-center mb-2">
-                                    <a href="{% url 'update_profile' %}" class="btn btn-change-profile">
-                                        Chỉnh sửa trang cá nhân
-                                    </a>
+{% block profile %}
+<section class="account-page">
+    <div class="container py-4 py-lg-5">
+        <div class="account-header mb-3 mb-lg-4">
+            <div>
+                <div class="account-title">Tài khoản của tôi</div>
+                <div class="account-subtitle">Quản lý thông tin cá nhân để bảo mật tài khoản.</div>
+            </div>
+            <div class="account-header__actions">
+                <a href="{% url 'home' %}" class="account-btn account-btn--ghost">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Về trang chủ</span>
+                </a>
+                <a href="{% url 'update_profile' %}" class="account-btn account-btn--primary">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Chỉnh sửa</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-3 g-lg-4">
+            <div class="col-lg-4">
+                <div class="account-card account-sidebar">
+                    <div class="account-sidebar__top">
+                        <div class="account-avatar">
+                            {% if user.profile.avatar %}
+                                <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="account-avatar__img">
+                            {% else %}
+                                <div class="account-avatar__fallback">
+                                    {{ user.username|default:"U"|slice:":1"|upper }}
                                 </div>
-                            </div>
+                            {% endif %}
                         </div>
-                        <div class="card mb-4 mb-lg-0">
-                            <div class="card-body p-0">
-                                <ul class="list-group list-group-flush rounded-3">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                        <i class="fab fa-github fa-lg text-body"></i>
-                                        <p class="mb-0">mdbootstrap</p>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                        <i class="fab fa-instagram fa-lg" style="color: #ac2bac;"></i>
-                                        <p class="mb-0">mdbootstrap</p>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                        <i class="fab fa-facebook-f fa-lg" style="color: #3b5998;"></i>
-                                        <p class="mb-0">mdbootstrap</p>
-                                    </li>
-                                </ul>
+                        <div class="account-sidebar__meta">
+                            <div class="account-username">{{ user.username }}</div>
+                            <div class="account-role">
+                                <span class="account-badge">
+                                    <i class="fa-solid fa-user"></i>
+                                    <span>Thành viên</span>
+                                </span>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-8">
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">First Name</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{user.first_name}}</p>
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Full Name</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{user.last_name}}</p>
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Email</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{user.email}}</p>
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Phone</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{user.profile.phone}}</p>
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="row">
-                                    <div class="col-sm-3">
-                                        <p class="mb-0">Address</p>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{user.profile.address}}</p>
-                                    </div>
-                                </div>
+
+                    <div class="account-sidebar__actions">
+                        <a href="{% url 'update_profile' %}" class="account-btn account-btn--primary w-100">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            <span>Chỉnh sửa hồ sơ</span>
+                        </a>
+                        <a href="{% url 'home' %}" class="account-btn account-btn--ghost w-100">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            <span>Tiếp tục mua sắm</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="account-card">
+                    <div class="account-card__header">
+                        <div class="account-card__title">Thông tin cá nhân</div>
+                        <a href="{% url 'update_profile' %}" class="account-link">
+                            <i class="fa-solid fa-pen"></i>
+                            <span>Sửa</span>
+                        </a>
+                    </div>
+
+                    <div class="account-info">
+                        <div class="account-info__row">
+                            <div class="account-info__label">Họ và tên</div>
+                            <div class="account-info__value">
+                                {{ user.first_name }} {{ user.last_name }}
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="card mb-4 mb-md-0">
-                                    <div class="card-body">
-                                        <p class="mb-4"><span class="text-primary font-italic me-1">assigment</span> Project Status
-                                        </p>
-                                        <p class="mb-1" style="font-size: .77rem;">Web Design</p>
-                                        <div class="progress rounded" style="height: 5px;">
-                                            <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="80"
-                                                aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                        <p class="mt-4 mb-1" style="font-size: .77rem;">Website Markup</p>
-                                        <div class="progress rounded" style="height: 5px;">
-                                            <div class="progress-bar" role="progressbar" style="width: 72%" aria-valuenow="72"
-                                                aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <p class="mt-4 mb-1" style="font-size: .77rem;">One Page</p>
-                                        <div class="progress rounded" style="height: 5px;">
-                                            <div class="progress-bar" role="progressbar" style="width: 89%" aria-valuenow="89"
-                                                aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <p class="mt-4 mb-1" style="font-size: .77rem;">Mobile Template</p>
-                                        <div class="progress rounded" style="height: 5px;">
-                                            <div class="progress-bar" role="progressbar" style="width: 55%" aria-valuenow="55"
-                                                aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <p class="mt-4 mb-1" style="font-size: .77rem;">Backend API</p>
-                                        <div class="progress rounded mb-2" style="height: 5px;">
-                                            <div class="progress-bar" role="progressbar" style="width: 66%" aria-valuenow="66"
-                                                aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div class="account-info__row">
+                            <div class="account-info__label">Email</div>
+                            <div class="account-info__value">
+                                {% if user.email %}{{ user.email }}{% else %}<span class="account-muted">Chưa cập nhật</span>{% endif %}
                             </div>
-                            <div class="col-md-6">
-                                <div class="card mb-4 mb-md-0">
-                                    <div class="card-body">
-                                        <p class="mb-4"><span class="text-primary font-italic me-1">assigment</span> Project Status
-                                        </p>
-                                        <p class="mb-1" style="font-size: .77rem;">Web Design</p>
-                                        <div class="progress rounded" style="height: 5px;">
-                                            <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="80"
-                                                aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <p class="mt-4 mb-1" style="font-size: .77rem;">Website Markup</p>
-                                        <div class="progress rounded" style="height: 5px;">
-                                            <div class="progress-bar" role="progressbar" style="width: 72%" aria-valuenow="72"
-                                                aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <p class="mt-4 mb-1" style="font-size: .77rem;">One Page</p>
-                                        <div class="progress rounded" style="height: 5px;">
-                                            <div class="progress-bar" role="progressbar" style="width: 89%" aria-valuenow="89"
-                                                aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <p class="mt-4 mb-1" style="font-size: .77rem;">Mobile Template</p>
-                                        <div class="progress rounded" style="height: 5px;">
-                                            <div class="progress-bar" role="progressbar" style="width: 55%" aria-valuenow="55"
-                                                aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <p class="mt-4 mb-1" style="font-size: .77rem;">Backend API</p>
-                                        <div class="progress rounded mb-2" style="height: 5px;">
-                                            <div class="progress-bar" role="progressbar" style="width: 66%" aria-valuenow="66"
-                                                aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                    </div>
-                                </div>
+                        </div>
+                        <div class="account-info__row">
+                            <div class="account-info__label">Số điện thoại</div>
+                            <div class="account-info__value">
+                                {% if user.profile.phone %}{{ user.profile.phone }}{% else %}<span class="account-muted">Chưa cập nhật</span>{% endif %}
+                            </div>
+                        </div>
+                        <div class="account-info__row">
+                            <div class="account-info__label">Địa chỉ</div>
+                            <div class="account-info__value">
+                                {% if user.profile.address %}{{ user.profile.address }}{% else %}<span class="account-muted">Chưa cập nhật</span>{% endif %}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-        {% endblock profile %}
-    </body>
-</html>
+        </div>
+    </div>
+</section>
+{% endblock profile %}
