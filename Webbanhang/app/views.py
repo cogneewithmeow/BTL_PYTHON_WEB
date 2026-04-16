@@ -51,6 +51,11 @@ def detail(request):
         cartItems = order['get_cart_items']
     id = request.GET.get('id','')
     products = Product.objects.filter(id=id)
+    # Gợi ý sản phẩm: nhẹ, không phá backend/route
+    suggested_products = (
+        Product.objects.exclude(id=id).order_by('-id')[:8]
+        if id else Product.objects.order_by('-id')[:8]
+    )
     base_reviews = (
         Review.objects
         .filter(product_id=id, status=Review.STATUS_APPROVED)
@@ -117,6 +122,7 @@ def detail(request):
     active_category = request.GET.get('category','')
     context = {
         'products':products,
+        'suggested_products': suggested_products,
         'reviews': page_obj.object_list,
         'page_obj': page_obj,
         'review_count': total_reviews,
@@ -327,30 +333,143 @@ def toggle_helpful_review(request, review_id):
         return JsonResponse({'ok': True, 'liked': False, 'helpful_count': review.helpful_count})
 
 def category(request):
-    categories = Category.objects.filter(is_sub = False)
-    active_category = request.GET.get('category','')
-    if active_category:
-        products = Product.objects.filter(category__slug = active_category)
-    context = {'categories': categories, 'products':products, 'active_category':active_category}
-    return render(request, 'app/category.html', context)
-
-def search(request):
-    if request.method == "POST":
-        searched = request.POST["searched"]
-        keys = Product.objects.filter(name__contains = searched)
+    # Header/cart context (giống home/cart/checkout) để số lượng giỏ luôn cập nhật.
     if request.user.is_authenticated:
         customer = request.user
-        order, created = Order.objects.get_or_create(customer = customer, complete = False)
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
     else:
         items = []
-        order = {'get_cart_items':0 , 'get_cart_total': 0}
+        order = {'get_cart_items': 0, 'get_cart_total': 0}
         cartItems = order['get_cart_items']
-    categories = Category.objects.filter(is_sub = False)
-    active_category = request.GET.get('category','')
-    products = Product.objects.all()
-    return render(request, 'app/search.html', {"searched":searched, "keys":keys, 'products': products, 'cartItems': cartItems, 'categories':categories, 'active_category':active_category})
+
+    categories = Category.objects.filter(is_sub=False)
+    active_category = request.GET.get('category', '')
+
+    products = Product.objects.none()
+    if active_category:
+        products = Product.objects.filter(category__slug=active_category).distinct()
+
+    context = {
+        'categories': categories,
+        'products': products,
+        'active_category': active_category,
+        'items': items,
+        'order': order,
+        'cartItems': cartItems,
+    }
+    return render(request, 'app/category.html', context)
+
+def search(request):
+    # Giữ route `/search/` hiện có nhưng hỗ trợ cả GET (q=) để:
+    # - giữ keyword trên URL (shareable)
+    # - dùng được sort/filter/pagination bằng query params
+    if request.method == "POST":
+        q = (request.POST.get("searched") or "").strip()
+        # Chuyển sang GET để giữ keyword trên ô search & URL rõ ràng
+        return redirect(f"/search/?q={q}" if q else "/search/")
+
+    q = (request.GET.get("q") or "").strip()
+    sort = (request.GET.get("sort") or "relevant").strip()
+    category_slug = (request.GET.get("cat") or "").strip()
+    price_min_raw = (request.GET.get("min") or "").strip()
+    price_max_raw = (request.GET.get("max") or "").strip()
+
+    # Base queryset
+    keys = Product.objects.all()
+
+    # Search (gần đúng, không phân biệt hoa thường)
+    if q:
+        # Tìm theo từng token để kết quả "gần đúng" hơn (VD: "iphone 15")
+        tokens = [t for t in q.split() if t]
+        query = Q()
+        for t in tokens:
+            query &= Q(name__icontains=t)
+        keys = keys.filter(query)
+    else:
+        # Keyword trống: hiển thị empty state + gợi ý
+        keys = keys.none()
+
+    # Filter theo danh mục (model hiện tại: Product.category is ManyToMany)
+    if category_slug:
+        keys = keys.filter(category__slug=category_slug).distinct()
+
+    # Filter khoảng giá (nếu nhập sai thì bỏ qua, không crash)
+    try:
+        if price_min_raw != "":
+            keys = keys.filter(price__gte=int(price_min_raw))
+    except ValueError:
+        price_min_raw = ""
+    try:
+        if price_max_raw != "":
+            keys = keys.filter(price__lte=int(price_max_raw))
+    except ValueError:
+        price_max_raw = ""
+
+    # Sort (best_selling chưa có dữ liệu -> fallback "relevant")
+    if sort == "latest":
+        keys = keys.order_by("-id")
+    elif sort == "price_asc":
+        keys = keys.order_by("price", "-id")
+    elif sort == "price_desc":
+        keys = keys.order_by("-price", "-id")
+    elif sort == "best_selling":
+        # Chưa có trường sold_count nên giữ nguyên "relevant"
+        pass
+    else:
+        sort = "relevant"
+
+    total_count = keys.count()
+
+    # Pagination
+    paginator = Paginator(keys, 12)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    # Build querystring giữ lại filter/sort khi phân trang
+    qs = request.GET.copy()
+    qs.pop("page", None)
+    querystring = qs.urlencode()
+
+    # Cart context giữ nguyên như các trang khác
+    if request.user.is_authenticated:
+        customer = request.user
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
+        items = order.orderitem_set.all()
+        cartItems = order.get_cart_items
+    else:
+        items = []
+        order = {'get_cart_items': 0, 'get_cart_total': 0}
+        cartItems = order['get_cart_items']
+
+    categories = Category.objects.filter(is_sub=False)
+    active_category = request.GET.get('category', '')
+
+    return render(
+        request,
+        "app/search.html",
+        {
+            # giữ key cũ để không phá template đang dùng "searched"/"keys"
+            "searched": q,
+            "q": q,
+            "keys": page_obj.object_list,
+            "page_obj": page_obj,
+            "total_count": total_count,
+            "sort": sort,
+            "filters": {
+                "cat": category_slug,
+                "min": price_min_raw,
+                "max": price_max_raw,
+            },
+            "querystring": querystring,
+            "items": items,
+            "order": order,
+            "cartItems": cartItems,
+            "categories": categories,
+            "active_category": active_category,
+        },
+    )
 
 def register(request):
     form = CreateUserForm()
@@ -399,7 +518,13 @@ def home(request):
     categories = Category.objects.filter(is_sub = False)
     active_category = request.GET.get('category','')
     products = Product.objects.all()
-    context = {'products': products, 'cartItems': cartItems, 'categories':categories, 'active_category':active_category}
+    context = {
+        'products': products,
+        'cartItems': cartItems,
+        'categories': categories,
+        'active_category': active_category,
+        'is_home': True,
+    }
     return render(request, 'app/home.html', context)
 
 def cart(request):
@@ -497,6 +622,8 @@ def success(request):
     return render(request, 'app/success.html')
 
 def updateItem(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'error': 'Authentication required'}, status=401)
     data = json.loads(request.body)
     productId = data['productId']
     action = data['action']
@@ -510,10 +637,29 @@ def updateItem(request):
         orderItem.quantity -= 1
 
     orderItem.save()
+    product_id_val = product.id
+    line_removed = False
+    line_qty = orderItem.quantity
+    line_total = 0
+
     if orderItem.quantity <= 0:
         orderItem.delete()
+        line_removed = True
+        line_qty = 0
+        line_total = 0
+    else:
+        line_total = orderItem.get_total()
 
-    return JsonResponse('added', safe = False)
+    return JsonResponse({
+        'ok': True,
+        'action': action,
+        'cartItems': order.get_cart_items,
+        'cartTotal': order.get_cart_total,
+        'productId': product_id_val,
+        'lineRemoved': line_removed,
+        'lineQuantity': line_qty,
+        'lineTotal': line_total,
+    })
 
 def update_profile(request):
     if request.user.is_authenticated:

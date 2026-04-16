@@ -1,120 +1,144 @@
 {% extends "app/base.html" %}
 {% load static %}
 {% load humanize %}
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
-    </head>
-    <body>
-        {% block profile %}
-        <section style="background-color: #eee;">
-            <div class="container py-5">
-                <div class="row">
-                    <div class="col-lg-4">
-                        <div class="card mb-4">
-                            <div class="card-body text-center">
-                                <img src="{{ user.profile.avatar.url }}" class= "avatar-profile">
-                                <form method="POST" enctype="multipart/form-data">
-                                    {% csrf_token %}
-                                    <!-- Nút chọn file -->
-                                    <label class="btn-upload">
-                                        Tải ảnh lên
-                                        <input type="file" name="avatar">
-                                    </label>
-                                    <!-- Nút submit -->
-                                    <button type="submit" class="btn-submit">Cập nhật ảnh</button>
-                                </form>
-                                <h5 class="my-3 name">{{user.username}}</h5>
-                                <div class="d-flex justify-content-center mb-2">
-                                    <a href="{% url "profile" %}" class="back-btn">
-                                        <i class="fa-solid fa-chevron-left"></i>
-                                        <span>Back</span>
-                                    </a>
+{% block profile %}
+<section class="account-page">
+    <div class="container py-4 py-lg-5">
+        <div class="account-header mb-3 mb-lg-4">
+            <div>
+                <div class="account-title">Chỉnh sửa hồ sơ</div>
+                <div class="account-subtitle">Cập nhật thông tin để nhận hàng và liên hệ nhanh hơn.</div>
+            </div>
+            <div class="account-header__actions">
+                <a href="{% url 'profile' %}" class="account-btn account-btn--ghost">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Quay lại</span>
+                </a>
+            </div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="row g-3 g-lg-4">
+            {% csrf_token %}
+
+            <div class="col-lg-4">
+                <div class="account-card account-sidebar">
+                    <div class="account-sidebar__top">
+                        <div class="account-avatar">
+                            {% if user.profile.avatar %}
+                                <img id="avatarPreview" src="{{ user.profile.avatar.url }}" alt="Avatar" class="account-avatar__img">
+                            {% else %}
+                                <div id="avatarFallback" class="account-avatar__fallback">
+                                    {{ user.username|default:"U"|slice:":1"|upper }}
                                 </div>
-                            </div>
+                                <img id="avatarPreview" src="" alt="Avatar" class="account-avatar__img d-none">
+                            {% endif %}
                         </div>
-                        <div class="card mb-4 mb-lg-0">
-                            <div class="card-body p-0">
-                                <ul class="list-group list-group-flush rounded-3">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                        <i class="fab fa-github fa-lg text-body"></i>
-                                        <p class="mb-0">mdbootstrap</p>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                        <i class="fab fa-instagram fa-lg" style="color: #ac2bac;"></i>
-                                        <p class="mb-0">mdbootstrap</p>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                        <i class="fab fa-facebook-f fa-lg" style="color: #3b5998;"></i>
-                                        <p class="mb-0">mdbootstrap</p>
-                                    </li>
-                                </ul>
-                            </div>
+                        <div class="account-sidebar__meta">
+                            <div class="account-username">{{ user.username }}</div>
+                            <div class="account-muted">Ảnh đại diện</div>
                         </div>
                     </div>
-                    <div class="col-lg-8">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
 
-                                <form method="POST">
-                                    {% csrf_token %}
-
-                                    <h5 class="mb-4">Chỉnh sửa thông tin</h5>
-
-                                    <!-- Username -->
-                                    <div class="form-group mb-3">
-                                        <label>User Name</label>
-                                        <input type="text" name="username" value="{{ user.username }}" class="form-control">
-                                    </div>
-
-                                    <!-- First Name -->
-                                    <div class="form-group mb-3">
-                                        <label>First Name</label>
-                                        <input type="text" name="first_name" value="{{ user.first_name }}" class="form-control">
-                                    </div>
-
-                                    <!-- Last Name -->
-                                    <div class="form-group mb-3">
-                                        <label>Last Name</label>
-                                        <input type="text" name="last_name" value="{{ user.last_name }}" class="form-control">
-                                    </div>
-
-                                    <!-- Email -->
-                                    <div class="form-group mb-3">
-                                        <label>Email</label>
-                                        <input type="email" name="email" value="{{ user.email }}" class="form-control">
-                                    </div>
-
-                                    <!-- Phone -->
-                                    <div class="form-group mb-3">
-                                        <label>Phone</label>
-                                        <input type="text" name="phone" value="{{ user.profile.phone }}" class="form-control">
-                                    </div>
-
-                                    <!-- Address -->
-                                    <div class="form-group mb-3">
-                                        <label>Address</label>
-                                        <textarea name="address" class="form-control" rows="2">{{ user.profile.address }}</textarea>
-                                    </div>
-
-                                    <!-- BUTTON -->
-                                    <div class="d-flex justify-content-end mt-4">
-                                        <button type="submit" class="btn-save">
-                                            💾 Lưu thay đổi
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
+                    <div class="account-sidebar__actions">
+                        <label class="account-btn account-btn--ghost w-100 account-filebtn">
+                            <i class="fa-solid fa-camera"></i>
+                            <span>Đổi ảnh đại diện</span>
+                            <input id="avatarInput" type="file" name="avatar" accept="image/*">
+                        </label>
+                        <div class="account-help">
+                            Chấp nhận JPG/PNG/WebP. Nên dùng ảnh vuông để hiển thị đẹp.
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-        {% endblock profile %}
-    </body>
-</html>
+
+            <div class="col-lg-8">
+                <div class="account-card">
+                    <div class="account-card__header">
+                        <div class="account-card__title">Thông tin tài khoản</div>
+                    </div>
+
+                    <div class="account-form">
+                        <div class="account-section">
+                            <div class="account-section__title">Thông tin cơ bản</div>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="account-label">Tên đăng nhập</label>
+                                    <input type="text" name="username" value="{{ user.username }}" class="account-input" autocomplete="username">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="account-label">Họ</label>
+                                    <input type="text" name="first_name" value="{{ user.first_name }}" class="account-input" autocomplete="given-name">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="account-label">Tên</label>
+                                    <input type="text" name="last_name" value="{{ user.last_name }}" class="account-input" autocomplete="family-name">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="account-divider"></div>
+
+                        <div class="account-section">
+                            <div class="account-section__title">Liên hệ</div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="account-label">Email</label>
+                                    <input type="email" name="email" value="{{ user.email }}" class="account-input" autocomplete="email">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="account-label">Số điện thoại</label>
+                                    <input type="text" name="phone" value="{{ user.profile.phone }}" class="account-input" autocomplete="tel">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="account-divider"></div>
+
+                        <div class="account-section">
+                            <div class="account-section__title">Địa chỉ</div>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="account-label">Địa chỉ nhận hàng</label>
+                                    <textarea name="address" class="account-input account-textarea" rows="3" autocomplete="street-address">{{ user.profile.address }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="account-actions">
+                            <a href="{% url 'profile' %}" class="account-btn account-btn--ghost">
+                                <i class="fa-solid fa-xmark"></i>
+                                <span>Hủy</span>
+                            </a>
+                            <button type="submit" class="account-btn account-btn--primary">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>Lưu thay đổi</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+    (function () {
+        const input = document.getElementById('avatarInput');
+        const preview = document.getElementById('avatarPreview');
+        const fallback = document.getElementById('avatarFallback');
+
+        if (!input || !preview) return;
+
+        input.addEventListener('change', function () {
+            const file = input.files && input.files[0];
+            if (!file) return;
+
+            const url = URL.createObjectURL(file);
+            preview.src = url;
+            preview.classList.remove('d-none');
+            if (fallback) fallback.classList.add('d-none');
+        });
+    })();
+</script>
+{% endblock profile %}

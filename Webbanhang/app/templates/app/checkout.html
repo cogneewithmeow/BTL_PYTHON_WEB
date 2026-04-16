@@ -2,142 +2,167 @@
 {% load static %}
 {% load humanize %}
 {% block content_checkout %}
-     <div class="container">
-        <div class="row">
-            <div class="col-xl-8">
-                <div class="card">
-                    <div class="card-body">
-                        <ol class="activity-checkout mb-0 px-4 mt-3">
-                            <li class="checkout-item">
-                                <div class="avatar checkout-icon p-1">
-                                    <div class="avatar-title rounded-circle bg-primary">
-                                        <i class="bx bxs-recept text-white font-size-20"></i>
-                                    </div>
-                                </div>
-                                <div class="feed-item-list">
-                                    <div>
-                                        <h5 class="font-size-16 mb-1">Địa chỉ giao hàng</h5>
+<div class="container checkout-page py-3 py-lg-4">
+    <div class="checkout-header mb-3">
+        <div>
+            <a href="{% url 'cart' %}" class="checkout-link">
+                <i class="fa-solid fa-arrow-left-long me-2"></i>
+                Quay lại giỏ hàng
+            </a>
+            <h1 class="checkout-title mb-1">Thanh toán</h1>
+            <div class="checkout-subtitle">Hoàn tất thông tin giao hàng và xác nhận đơn.</div>
+        </div>
+        <div class="d-none d-lg-flex gap-2">
+            <span class="checkout-badge">
+                <i class="fa-solid fa-shield-halved me-2"></i>
+                Thanh toán an toàn
+            </span>
+        </div>
+    </div>
 
-                                        <div class="mb-3">
-                                            <form method = "POST">
-                                                {% csrf_token %}
-                                                <div>
-                                                    <div class="row">
-                                                        <div class="col-lg-4">
-                                                            <div class="mb-3">
-                                                                <label class="form-label" for="billing-name">Họ và tên</label>
-                                                                <input type="text" class="form-control" name="name" placeholder="Họ và tên">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-lg-4">
-                                                            <div class="mb-3">
-                                                                <label class="form-label" for="billing-email-address">Email</label>
-                                                                <input type="email" class="form-control" name="email" placeholder="Enter email">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-lg-4">
-                                                            <div class="mb-3">
-                                                                <label class="form-label" for="billing-phone">Số điện thoại</label>
-                                                                <input type="text" class="form-control" name = "phone" placeholder="Enter Phone no.">
-                                                            </div>
-                                                        </div>
-                                                    </div>
+    <form method="POST" class="row g-3 g-lg-4 align-items-start">
+        {% csrf_token %}
 
-                                                    <div class="mb-3">
-                                                        <label class="form-label" for="billing-address">Địa chỉ</label>
-                                                        <textarea class="form-control" name = "address" rows="3" placeholder="Enter full address"></textarea>
-                                                    </div>
-
-                                                    <div class="row">
-                                                        <div class="col-lg-4">
-                                                            <div class="mb-4 mb-lg-0">
-                                                                <label class="form-label" for="billing-city">Quận/huyện</label>
-                                                                <input type="text" class="form-control" name = "city" placeholder="Enter City">
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-lg-4">
-                                                            <div class="mb-4 mb-lg-0">
-                                                                <label class="form-label" for="billing-city">Thành Phố</label>
-                                                                <input type="text" class="form-control" name = "state" placeholder="Enter City">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-												<div class="row my-4 align-items-center">
-													<div class="col d-flex align-items-center">
-														<a href="{% url "cart" %}" class="btn btn-link text-muted p-0">
-															<i class="mdi mdi-arrow-left me-1"></i> Continue Shopping
-														</a>
-													</div>
-
-													<div class="col text-end">
-														<button type="submit" class="btn btn-success">
-															Xác nhận đơn hàng
-														</button>
-													</div>
-												</div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                        </ol>
+        <div class="col-12 col-lg-8">
+            <div class="checkout-card">
+                <div class="checkout-card__head">
+                    <div class="checkout-card__title">
+                        <span class="checkout-step">1</span>
+                        Địa chỉ giao hàng
+                    </div>
+                </div>
+                <div class="checkout-card__body">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label class="checkout-label">Họ và tên</label>
+                            <input type="text" class="checkout-input" name="name" placeholder="Ví dụ: Nguyễn Văn A">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="checkout-label">Email</label>
+                            <input type="email" class="checkout-input" name="email" placeholder="Ví dụ: email@domain.com">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="checkout-label">Số điện thoại</label>
+                            <input type="text" class="checkout-input" name="phone" placeholder="Ví dụ: 0901 234 567">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="checkout-label">Thành phố</label>
+                            <input type="text" class="checkout-input" name="state" placeholder="Ví dụ: Hà Nội / TP.HCM">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="checkout-label">Quận/Huyện</label>
+                            <input type="text" class="checkout-input" name="city" placeholder="Ví dụ: Quận 1 / Cầu Giấy">
+                        </div>
+                        <div class="col-12">
+                            <label class="checkout-label">Địa chỉ</label>
+                            <textarea class="checkout-input checkout-textarea" name="address" rows="3" placeholder="Số nhà, tên đường, phường/xã..."></textarea>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-4">
-                <div class="card checkout-order-summary">
-                    <div class="card-body">
-                        <div class="p-3 bg-light mb-3">
-                            <h5 class="font-size-16 mb-0">Order Summary <span class="float-end ms-2">#MN0124</span></h5>
+
+            <div class="checkout-card mt-3">
+                <div class="checkout-card__head">
+                    <div class="checkout-card__title">
+                        <span class="checkout-step">2</span>
+                        Phương thức thanh toán
+                    </div>
+                </div>
+                <div class="checkout-card__body">
+                    <div class="pay-grid">
+                        <label class="pay-option">
+                            <input class="pay-radio" type="radio" name="pay_method" value="cod" checked>
+                            <span class="pay-option__content">
+                                <span class="pay-option__title">Thanh toán khi nhận hàng (COD)</span>
+                                <span class="pay-option__desc">Phù hợp đơn hàng thông thường.</span>
+                            </span>
+                        </label>
+                        <label class="pay-option">
+                            <input class="pay-radio" type="radio" name="pay_method" value="bank">
+                            <span class="pay-option__content">
+                                <span class="pay-option__title">Chuyển khoản ngân hàng</span>
+                                <span class="pay-option__desc">Hiển thị UI (backend có thể xử lý sau).</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="checkout-card mt-3">
+                <div class="checkout-card__head">
+                    <div class="checkout-card__title">
+                        <span class="checkout-step">3</span>
+                        Ghi chú đơn hàng (tuỳ chọn)
+                    </div>
+                </div>
+                <div class="checkout-card__body">
+                    <textarea class="checkout-input checkout-textarea" name="note_ui" rows="2" placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi giao..."></textarea>
+                    <div class="checkout-hint mt-2">
+                        Ghi chú này chỉ hiển thị giao diện, không ảnh hưởng backend hiện tại.
+                    </div>
+                </div>
+            </div>
+
+            <div class="checkout-actions mt-3">
+                <a href="{% url 'cart' %}" class="btn cart-btn cart-btn--ghost">
+                    <i class="fa-solid fa-arrow-left-long me-2"></i>Về giỏ hàng
+                </a>
+                <button type="submit" class="btn cart-btn cart-btn--primary">
+                    Xác nhận đơn hàng
+                    <i class="fa-solid fa-check ms-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="checkout-summary">
+                <div class="checkout-summary__head">
+                    <div class="checkout-summary__title">Tóm tắt đơn hàng</div>
+                </div>
+
+                <div class="checkout-summary__items">
+                    {% for item in items %}
+                    <div class="summary-item">
+                        <img class="summary-item__img" src="{{ item.product.ImageUrl }}" alt="{{ item.product.name }}">
+                        <div class="summary-item__info">
+                            <div class="summary-item__name">{{ item.product.name }}</div>
+                            <div class="summary-item__meta">
+                                <span class="text-muted">{{ item.product.price|intcomma }}đ</span>
+                                <span class="summary-item__dot">•</span>
+                                <span class="text-muted">x{{ item.quantity }}</span>
+                            </div>
                         </div>
-                        <div class="table-responsive">
-                            <table class="table table-centered mb-0 table-nowrap">
-                                <thead>
-                                    <tr>
-                                        <th class="border-top-0" style="width: 110px;" scope="col">Product</th>
-                                        <th class="border-top-0" scope="col">Product Desc</th>
-                                        <th class="border-top-0" scope="col">Price</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for item in items %}
-                                    <tr>
-                                        <th scope="row">
-                                            <img src="{{ item.product.ImageUrl }}" class="avatar-lg rounded" width="80">
-                                        </th>
-                                        <td>
-                                            <h5>{{ item.product.name }}</h5>
-                                            <p>{{ item.product.price|intcomma }} x {{ item.quantity }}</p>
-                                        </td>
-                                        <td>{{ item.get_total|intcomma }}VNĐ</td>
-                                    </tr>
-                                    {% endfor %}
-                                    <tr>
-                                        <td colspan="2">
-                                            <h5 class="font-size-14 m-0">Total :</h5>
-                                        </td>
-                                        <td>
-                                           {{order.get_cart_total|intcomma}}VNĐ
-                                        </td>
-                                    </tr>
-									<tr>
-										<td colspan="2">
-                                            <h5 class="font-size-14 m-0">Thời gian :</h5>
-                                        </td>
-                                        <td>
-                                           {{order.date_order}}
-                                        </td>
-									</tr>
-                                </tbody>
-                            </table>
-                            
+                        <div class="summary-item__total">
+                            <strong>{{ item.get_total|intcomma }}đ</strong>
                         </div>
                     </div>
+                    {% endfor %}
+                </div>
+
+                <div class="checkout-summary__calc">
+                    <div class="calc-row">
+                        <span class="text-muted">Tạm tính</span>
+                        <strong>{{ order.get_cart_total|intcomma }}đ</strong>
+                    </div>
+                    <div class="calc-row">
+                        <span class="text-muted">Phí vận chuyển</span>
+                        <strong class="text-muted">—</strong>
+                    </div>
+                    <div class="calc-divider"></div>
+                    <div class="calc-row calc-row--total">
+                        <span>Tổng thanh toán</span>
+                        <span class="calc-money">{{ order.get_cart_total|intcomma }}đ</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn cart-btn cart-btn--primary w-100 mt-2">
+                    Đặt hàng
+                </button>
+                <div class="checkout-hint mt-2">
+                    Bằng việc bấm “Đặt hàng”, bạn đồng ý với các điều khoản mua hàng.
                 </div>
             </div>
         </div>
-        <!-- end row -->
-    </div>
+    </form>
+</div>
 {% endblock content_checkout %}

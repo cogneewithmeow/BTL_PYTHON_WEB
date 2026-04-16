@@ -2,60 +2,151 @@
 {% load static %}
 {% load humanize %}
 {% block banner_slider %}
-    <div id="carouselExampleDark" class="carousel carousel-dark slide">
-        <div class="carousel-indicators">
-            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="1" aria-label="Slide 2"></button>
-            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="2" aria-label="Slide 3"></button>
-        </div>
-        <div class="carousel-inner">
-            <div class="carousel-item active" data-bs-interval="10000">
-                <img src="{% static "app/image/banner/banner.png" %}" class="d-block w-100" alt="..." height = '500'>
-            </div>
-            <div class="carousel-item" data-bs-interval="2000">
-                <img src="{% static "app/image/banner/banner2.png" %}" class="d-block w-100" alt="..." height = '500'>
-            </div>
-            <div class="carousel-item">
-                <img src="{% static "app/image/banner/banner3.png" %}" class="d-block w-100" alt="..." height = '500'>
-            </div>
-        </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
-    </div>
-{% endblock banner_slider %}
-{% block main_content %}
-    <div class = "row" style = "width:100%">
-        {%for product in products %}
-        <div class="col-lg-3">
-            <div class="card h-100 shadow-sm">
-                <img src="{{product.ImageUrl}}" 
-                    class="card-img-top" 
-                    style="height:200px; object-fit:cover;">
-                <div class="card-body">
-                    <h6 class="card-title fw-bold mb-2">{{product.name}}</h6>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center gap-1">
-                            <button data-product = {{product.id}} data-action = "add" class="btn btn-outline-primary btn-sm add-cart update-cart">
-                                🛒 Add
-                            </button>
-
-                            <a class="btn btn-sm view-btn" href="{% url "detail" %}?id={{product.id}}">
-                                Xem
-                            </a>
+    <section class="home-hero">
+        <div class="container">
+            <div class="home-hero__grid">
+                <div class="home-hero__main">
+                    <div id="homeHeroCarousel" class="carousel slide home-carousel" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            <button type="button" data-bs-target="#homeHeroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                            <button type="button" data-bs-target="#homeHeroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                            <button type="button" data-bs-target="#homeHeroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
                         </div>
-                        <span class="text-danger fw-bold">
-                            💵 {{product.price|intcomma}}VNĐ
-                        </span>
+                        <div class="carousel-inner">
+                            <div class="carousel-item active" data-bs-interval="5000">
+                                <img src="{% static 'app/image/banner/banner.png' %}" class="d-block w-100 home-carousel__img" alt="Banner 1">
+                            </div>
+                            <div class="carousel-item" data-bs-interval="5000">
+                                <img src="{% static 'app/image/banner/banner2.png' %}" class="d-block w-100 home-carousel__img" alt="Banner 2">
+                            </div>
+                            <div class="carousel-item" data-bs-interval="5000">
+                                <img src="{% static 'app/image/banner/banner3.png' %}" class="d-block w-100 home-carousel__img" alt="Banner 3">
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#homeHeroCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#homeHeroCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
                     </div>
+                </div>
+
+                <div class="home-hero__side">
+                    <a class="mini-banner" href="{% url 'search' %}?q=" aria-label="Ưu đãi hôm nay">
+                        <img src="{% static 'app/image/banner/banner2.png' %}" alt="Ưu đãi" class="mini-banner__img">
+                        <div class="mini-banner__overlay">
+                            <div class="mini-banner__title">Ưu đãi hôm nay</div>
+                            <div class="mini-banner__sub">Deal ngon • Giao nhanh</div>
+                        </div>
+                    </a>
+                    <a class="mini-banner" href="{% url 'search' %}?q=" aria-label="Món mới lên kệ">
+                        <img src="{% static 'app/image/banner/banner3.png' %}" alt="Món mới" class="mini-banner__img">
+                        <div class="mini-banner__overlay">
+                            <div class="mini-banner__title">Món mới lên kệ</div>
+                            <div class="mini-banner__sub">Khám phá ngay</div>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
-        {% endfor %}
-    </div>
+    </section>
+
+    <!-- DANH MỤC (Category icons grid) -->
+    <section class="home-categories">
+        <div class="container">
+            <div class="home-categories__card">
+                <div class="home-categories__header">
+                    <h3 class="home-categories__title">DANH MỤC</h3>
+                    <a class="home-section__more" href="{% url 'search' %}">Xem thêm</a>
+                </div>
+
+                <div class="category-grid">
+                    {% for i in categories|slice:":4" %}
+                        {% with slug=i.slug %}
+                            <a class="category-item" href="{% url "category" %}?category={{ slug }}">
+                                <div class="category-item__iconwrap">
+                                    {# Mapping icon cho đúng 4 danh mục. Fallback: icon mặc định #}
+                                    {% if slug == "do-an-vat" or i.name|lower == "ăn vặt" %}
+                                        <i class="category-item__icon fa-solid fa-cookie-bite" aria-hidden="true"></i>
+                                    {% elif slug == "trang-mieng" or i.name|lower == "Tráng miệng" %}
+                                        <i class="category-item__icon fa-solid fa-bowl-food" aria-hidden="true"></i>
+                                    {% elif slug == "do-uong" or i.name|lower == "đồ uống" %}
+                                        <i class="category-item__icon fa-solid fa-mug-hot" aria-hidden="true"></i>
+                                    {% elif slug == "fast-food" or slug == "fastfood" or i.name|lower == "fast food" %}
+                                        <i class="category-item__icon fa-solid fa-burger" aria-hidden="true"></i>
+                                    {% else %}
+                                        <i class="category-item__icon fa-solid fa-layer-group" aria-hidden="true"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="category-item__name" title="{{ i.name }}">{{ i.name }}</div>
+                            </a>
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock banner_slider %}
+{% block main_content %}
+    <section class="home-shell">
+        <div class="container">
+            <!-- MID BANNER -->
+            <div class="home-midbanner">
+                <div class="home-midbanner__card">
+                    <div class="home-midbanner__text">
+                        <div class="home-midbanner__title">Gợi ý hôm nay</div>
+                        <div class="home-midbanner__desc">Chọn món ngon phù hợp khẩu vị của bạn.</div>
+                    </div>
+                    <a class="home-midbanner__btn" href="{% url 'search' %}">
+                        Khám phá
+                        <i class="fa-solid fa-arrow-right-long ms-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- GỢI Ý HÔM NAY / BẠN CÓ THỂ THÍCH -->
+            <div class="home-section">
+                <div class="home-section__head">
+                    <div class="home-section__titlewrap">
+                        <div class="home-section__title">
+                            <i class="fa-solid fa-star"></i>
+                            Bạn có thể thích
+                        </div>
+                        <div class="home-section__subtitle">Sản phẩm nổi bật từ cửa hàng</div>
+                    </div>
+                    <a class="home-section__more" href="{% url 'search' %}">Xem tất cả</a>
+                </div>
+                <div class="home-grid">
+                    {% for product in products %}
+                        <div class="p-card">
+                            <a class="p-card__media" href="{% url 'detail' %}?id={{product.id}}">
+                                <img class="p-card__img" src="{{product.ImageUrl}}" alt="{{ product.name }}">
+                            </a>
+                            <div class="p-card__body">
+                                <a class="p-card__name" href="{% url 'detail' %}?id={{product.id}}" title="{{ product.name }}">
+                                    {{product.name}}
+                                </a>
+                                <div class="p-card__bottom">
+                                    <div class="p-card__price">
+                                        {{product.price|intcomma}} <span class="home-money">VNĐ</span>
+                                    </div>
+                                    <div class="p-card__actions">
+                                        <button data-product="{{product.id}}" data-action="add" class="btn p-card__btn p-card__btn--cart update-cart">
+                                            Thêm giỏ
+                                        </button>
+                                        <a class="btn p-card__btn p-card__btn--view" href="{% url 'detail' %}?id={{product.id}}">
+                                            Xem
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
 {% endblock main_content %}

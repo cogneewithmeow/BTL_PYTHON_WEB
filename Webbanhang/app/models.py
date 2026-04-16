@@ -24,6 +24,28 @@ class CreateUserForm(UserCreationForm):
         model = User
         fields = ['username','email','first_name','last_name','password1','password2',]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        common = {
+            "class": "auth-input",
+        }
+
+        if "username" in self.fields:
+            self.fields["username"].widget.attrs.update({**common, "placeholder": "Tên đăng nhập"})
+        if "email" in self.fields:
+            self.fields["email"].widget.attrs.update({**common, "placeholder": "Email"})
+        if "phone" in self.fields:
+            self.fields["phone"].widget.attrs.update({**common, "placeholder": "Số điện thoại"})
+        if "first_name" in self.fields:
+            self.fields["first_name"].widget.attrs.update({**common, "placeholder": "Họ"})
+        if "last_name" in self.fields:
+            self.fields["last_name"].widget.attrs.update({**common, "placeholder": "Tên"})
+        if "password1" in self.fields:
+            self.fields["password1"].widget.attrs.update({**common, "placeholder": "Mật khẩu"})
+        if "password2" in self.fields:
+            self.fields["password2"].widget.attrs.update({**common, "placeholder": "Nhập lại mật khẩu"})
+
 
 class Product(models.Model):
     category = models.ManyToManyField(Category, related_name = 'product')

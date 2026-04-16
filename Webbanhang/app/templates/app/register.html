@@ -1,128 +1,143 @@
 {% extends "app/base.html" %}
 {% load static %}
 {% load humanize %}
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
-    </head>
-    <body>
-        {% block register %}
-        <section class="vh-100" style="background-color: #eee;">
-            <div class="container h-100">
-                <div class="row d-flex justify-content-center align-items-center h-100">
-                    <div class="col-lg-12 col-xl-11">
-                        <div class="card text-black" style="border-radius: 25px;">
-                            <div class="card-body p-md-5">
-                                <div class="row justify-content-center">
-                                    <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
+{% block register %}
+<section class="auth-page">
+  <div class="container auth-container">
+    <div class="auth-card">
+      <div class="auth-card__left">
+        <div class="auth-brand">
+          <img class="auth-brand__logo" src="{% static 'app/image/logoweb.png' %}" alt="Ăn là Ghiền" />
+          <div class="auth-brand__text">
+            <div class="auth-brand__name">Ăn là Ghiền</div>
+            <div class="auth-brand__tagline">Tạo tài khoản để nhận ưu đãi và đặt món nhanh hơn</div>
+          </div>
+        </div>
 
-                                        <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Đăng ký</p>
+        <h1 class="auth-title">Đăng ký</h1>
 
-                                        <form class="mx-1 mx-md-4" method = 'POST' action = "">
-                                            {% csrf_token %}
-                                            <div class="d-flex flex-row align-items-center mb-4">
-                                                <i class="fas fa-user fa-lg me-3 fa-fw"></i>
-                                                <div data-mdb-input-init class="form-outline flex-fill mb-0">
-                                                    <label class="form-label" for="form3Example1c">User Name </label>
-                                                    {{form.username}}
-                                                </div>
-                                            </div>
+        {% if messages %}
+          <div class="auth-alerts">
+            {% for message in messages %}
+              <div class="auth-alert auth-alert--{{ message.tags|default:'info' }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
 
-                                            <div class="d-flex flex-row align-items-center mb-4">
-                                                <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
-                                                <div data-mdb-input-init class="form-outline flex-fill mb-0">
-                                                    
-                                                    <label class="form-label" for="form3Example3c">Your Email </label>
-                                                    {{form.email}}
-                                                </div>
-                                            </div>
+        {% if form.non_field_errors %}
+          <div class="auth-alerts">
+            <div class="auth-alert auth-alert--error">{{ form.non_field_errors }}</div>
+          </div>
+        {% endif %}
 
-                                            <div class="d-flex flex-row align-items-center mb-4">
-                                                <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
-                                                <div data-mdb-input-init class="form-outline flex-fill mb-0">
-                                                    
-                                                    <label class="form-label" for="form3Example3c">Your Phone </label>
-                                                    {{form.phone}}
-                                                </div>
-                                            </div>
+        <form class="auth-form" method="POST" action="">
+          {% csrf_token %}
 
-                                            <div class="d-flex flex-row align-items-center mb-4">
-                                                <i class="fas fa-user fa-lg me-3 fa-fw"></i>
-                                                <div data-mdb-input-init class="form-outline flex-fill mb-0">
-                                                    <label class="form-label" for="form3Example1c">First Name </label>
-                                                    {{form.first_name}}
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="d-flex flex-row align-items-center mb-4">
-                                                <i class="fas fa-user fa-lg me-3 fa-fw"></i>
-                                                <div data-mdb-input-init class="form-outline flex-fill mb-0">
-                                                    <label class="form-label" for="form3Example1c">Last Name </label>
-                                                    {{form.last_name}}
-                                                </div>
-                                            </div>
-
-                                            <div class="d-flex flex-row align-items-center mb-4">
-                                                <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
-                                                <div data-mdb-input-init class="form-outline flex-fill mb-0">
-                                                    
-                                                    <label class="form-label" for="form3Example4c">Password </label>
-                                                    {{form.password1}}
-                                                </div>
-                                            </div>
-
-                                            <div class="d-flex flex-row align-items-center mb-4">
-                                                <i class="fas fa-key fa-lg me-3 fa-fw"></i>
-                                                <div data-mdb-input-init class="form-outline flex-fill mb-0">
-                                                    <label class="form-label" for="form3Example4cd">Repeat your password </label>
-                                                    {{form.password2}}
-                                                </div>
-                                            </div>
-
-                                            <!--<div class="form-check d-flex justify-content-center mb-5">
-                                                <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3c" />
-                                                <label class="form-check-label" for="form2Example3">
-                                                I agree all statements in <a href="#!">Terms of service</a>
-                                                </label>
-                                            </div>-->
-
-                                            <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
-                                                <button  type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg">Đăng ký</button>
-                                            </div>
-
-                                            <p class="text-center h6 fw-bold mb-5 mx-1 mx-md-4 mt-4">You have a account? <a href = {% url "login" %}>Đăng nhập</a></p>
-
-                                        </form>
-
-                                    </div>
-                                    <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
-
-                                        <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/draw1.webp"
-                                            class="img-fluid" alt="Sample image">
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <div class="auth-grid">
+            <div class="auth-field">
+              <label class="auth-label" for="{{ form.username.id_for_label }}">Tên đăng nhập</label>
+              <div class="auth-inputwrap">
+                <span class="auth-icon"><i class="fa-solid fa-user"></i></span>
+                {{ form.username }}
+              </div>
+              {% if form.username.errors %}<div class="auth-error">{{ form.username.errors }}</div>{% endif %}
             </div>
-        </section>
-        <!--<form method = "POST" action = "">
-            {% csrf_token %}
-            {{form.username}}
-            <input type = "Submit" name = "Create User"/>
-        </form>-->
-        <!--[if lt IE 7]>
-            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
-        
-        <script src="" async defer></script>
-        {% endblock register %}
-    </body>
-</html>
+
+            <div class="auth-field">
+              <label class="auth-label" for="{{ form.email.id_for_label }}">Email</label>
+              <div class="auth-inputwrap">
+                <span class="auth-icon"><i class="fa-solid fa-envelope"></i></span>
+                {{ form.email }}
+              </div>
+              {% if form.email.errors %}<div class="auth-error">{{ form.email.errors }}</div>{% endif %}
+            </div>
+
+            {% if form.phone %}
+            <div class="auth-field">
+              <label class="auth-label" for="{{ form.phone.id_for_label }}">Số điện thoại</label>
+              <div class="auth-inputwrap">
+                <span class="auth-icon"><i class="fa-solid fa-phone"></i></span>
+                {{ form.phone }}
+              </div>
+              {% if form.phone.errors %}<div class="auth-error">{{ form.phone.errors }}</div>{% endif %}
+            </div>
+            {% endif %}
+
+            <div class="auth-field">
+              <label class="auth-label" for="{{ form.first_name.id_for_label }}">Họ</label>
+              <div class="auth-inputwrap">
+                <span class="auth-icon"><i class="fa-solid fa-id-card"></i></span>
+                {{ form.first_name }}
+              </div>
+              {% if form.first_name.errors %}<div class="auth-error">{{ form.first_name.errors }}</div>{% endif %}
+            </div>
+
+            <div class="auth-field">
+              <label class="auth-label" for="{{ form.last_name.id_for_label }}">Tên</label>
+              <div class="auth-inputwrap">
+                <span class="auth-icon"><i class="fa-solid fa-id-card"></i></span>
+                {{ form.last_name }}
+              </div>
+              {% if form.last_name.errors %}<div class="auth-error">{{ form.last_name.errors }}</div>{% endif %}
+            </div>
+
+            <div class="auth-field">
+              <label class="auth-label" for="{{ form.password1.id_for_label }}">Mật khẩu</label>
+              <div class="auth-inputwrap">
+                <span class="auth-icon"><i class="fa-solid fa-lock"></i></span>
+                {{ form.password1 }}
+                <button class="auth-toggle" type="button" data-auth-toggle="password" data-auth-target="#{{ form.password1.auto_id }}" aria-label="Hiện/ẩn mật khẩu">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+              {% if form.password1.errors %}<div class="auth-error">{{ form.password1.errors }}</div>{% endif %}
+            </div>
+
+            <div class="auth-field">
+              <label class="auth-label" for="{{ form.password2.id_for_label }}">Nhập lại mật khẩu</label>
+              <div class="auth-inputwrap">
+                <span class="auth-icon"><i class="fa-solid fa-key"></i></span>
+                {{ form.password2 }}
+                <button class="auth-toggle" type="button" data-auth-toggle="password" data-auth-target="#{{ form.password2.auto_id }}" aria-label="Hiện/ẩn mật khẩu">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+              {% if form.password2.errors %}<div class="auth-error">{{ form.password2.errors }}</div>{% endif %}
+            </div>
+          </div>
+
+          <div class="auth-actions">
+            <button type="submit" class="auth-btn auth-btn--primary">
+              Đăng ký
+              <i class="fa-solid fa-bolt ms-2"></i>
+            </button>
+          </div>
+
+          <div class="auth-foot">
+            <span>Đã có tài khoản?</span>
+            <a class="auth-link" href="{% url 'login' %}">Đăng nhập</a>
+          </div>
+        </form>
+      </div>
+
+      <div class="auth-card__right">
+        <div class="auth-hero">
+          <div class="auth-hero__badge">
+            <i class="fa-solid fa-fire"></i>
+            <span>Ưu đãi • Năng lượng</span>
+          </div>
+          <div class="auth-hero__title">Tham gia ngay</div>
+          <div class="auth-hero__desc">Nhận mã giảm giá và theo dõi đơn hàng dễ dàng.</div>
+          <div class="auth-hero__art" aria-hidden="true">
+            <div class="auth-bubble auth-bubble--1"></div>
+            <div class="auth-bubble auth-bubble--2"></div>
+            <div class="auth-bubble auth-bubble--3"></div>
+            <img class="auth-hero__logo" src="{% static 'app/image/logoweb.png' %}" alt="" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script src="{% static 'app/js/auth.js' %}?v=1"></script>
+{% endblock register %}

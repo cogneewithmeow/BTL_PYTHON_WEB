@@ -1,82 +1,99 @@
 {% extends "app/base.html" %}
 {% load static %}
 {% load humanize %}
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
-    </head>
-    <body>
-        {% block login %}
-        <section class="vh-100" style="background-color: #eee;">
-            <div class="container h-100">
-                <div class="row d-flex justify-content-center align-items-center h-100">
-                    <div class="col-lg-12 col-xl-11">
-                        <div class="card text-black" style="border-radius: 25px;">
-                            <div class="card-body p-md-5">
-                                <div class="row justify-content-center">
-                                    <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
+{% block login %}
+<section class="auth-page">
+  <div class="container auth-container">
+    <div class="auth-card">
+      <div class="auth-card__left">
+        <div class="auth-brand">
+          <img class="auth-brand__logo" src="{% static 'app/image/logoweb.png' %}" alt="Ăn là Ghiền" />
+          <div class="auth-brand__text">
+            <div class="auth-brand__name">Ăn là Ghiền</div>
+            <div class="auth-brand__tagline">Đăng nhập để tiếp tục mua sắm món ngon</div>
+          </div>
+        </div>
 
-                                        <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Đăng nhập</p>
+        <h1 class="auth-title">Đăng nhập</h1>
 
-                                        <form class="mx-1 mx-md-4" method = 'POST' action = "">
-                                            {% csrf_token %}
-                                            <div class="d-flex flex-row align-items-center mb-4">
-                                                <i class="fas fa-user fa-lg me-3 fa-fw"></i>
-                                                <div data-mdb-input-init class="form-outline flex-fill mb-0">
-                                                    <input type="text" name = 'username' id="form3Example1c" class="form-control" />
-                                                    <label class="form-label" for="form3Example1c">User Name </label>
-                                                    
-                                                </div>
-                                            </div>
+        {% if messages %}
+          <div class="auth-alerts">
+            {% for message in messages %}
+              <div class="auth-alert auth-alert--{{ message.tags|default:'info' }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
 
-                                            <div class="d-flex flex-row align-items-center mb-4">
-                                                <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
-                                                <div data-mdb-input-init class="form-outline flex-fill mb-0">
-                                                    <input type="text" name = 'password1' id="form3Example1c" class="form-control" />
-                                                    <label class="form-label" for="form3Example4c">Password </label>
-                                                </div>
-                                            </div>
+        <form class="auth-form" method="POST" action="">
+          {% csrf_token %}
 
-                                            <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
-                                                <button  type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg">Đăng nhập</button>
-                                            </div>
-
-                                            <p class="text-center h6 fw-bold mb-5 mx-1 mx-md-4 mt-4">You don't have a account? <a href = {% url "register" %}>Đăng ký</a></p>
-
-                                            {% for message in messages %}
-                                            <p id = 'message' class="text-center h6 fw-bold mb-5 mx-1 mx-md-4 mt-4">{{message}}</p>
-                                            {% endfor %}
-                                        </form>
-
-                                    </div>
-                                    <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
-
-                                        <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/draw1.webp"
-                                            class="img-fluid" alt="Sample image">
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <div class="auth-field">
+            <label class="auth-label" for="id_username">Tên đăng nhập</label>
+            <div class="auth-inputwrap">
+              <span class="auth-icon"><i class="fa-solid fa-user"></i></span>
+              <input
+                id="id_username"
+                type="text"
+                name="username"
+                class="auth-input"
+                placeholder="Nhập username của bạn"
+                autocomplete="username"
+                required
+              />
             </div>
-        </section>
-        <!--<form method = "POST" action = "">
-            {% csrf_token %}
-            {{form.username}}
-            <input type = "Submit" name = "Create User"/>
-        </form>-->
-        <!--[if lt IE 7]>
-            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
-        
-        <script src="" async defer></script>
-        {% endblock login %}
-    </body>
-</html>
+          </div>
+
+          <div class="auth-field">
+            <label class="auth-label" for="id_password1">Mật khẩu</label>
+            <div class="auth-inputwrap">
+              <span class="auth-icon"><i class="fa-solid fa-lock"></i></span>
+              <input
+                id="id_password1"
+                type="password"
+                name="password1"
+                class="auth-input"
+                placeholder="Nhập mật khẩu"
+                autocomplete="current-password"
+                required
+              />
+              <button class="auth-toggle" type="button" data-auth-toggle="password" data-auth-target="#id_password1" aria-label="Hiện/ẩn mật khẩu">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="auth-actions">
+            <button type="submit" class="auth-btn auth-btn--primary">
+              Đăng nhập
+              <i class="fa-solid fa-arrow-right-long ms-2"></i>
+            </button>
+          </div>
+
+          <div class="auth-foot">
+            <span>Bạn chưa có tài khoản?</span>
+            <a class="auth-link" href="{% url 'register' %}">Đăng ký ngay</a>
+          </div>
+        </form>
+      </div>
+
+      <div class="auth-card__right">
+        <div class="auth-hero">
+          <div class="auth-hero__badge">
+            <i class="fa-solid fa-burger"></i>
+            <span>Food • E-commerce</span>
+          </div>
+          <div class="auth-hero__title">Món ngon mỗi ngày</div>
+          <div class="auth-hero__desc">Ưu đãi nóng hổi, giao nhanh, đặt là ghiền.</div>
+          <div class="auth-hero__art" aria-hidden="true">
+            <div class="auth-bubble auth-bubble--1"></div>
+            <div class="auth-bubble auth-bubble--2"></div>
+            <div class="auth-bubble auth-bubble--3"></div>
+            <img class="auth-hero__logo" src="{% static 'app/image/logoweb.png' %}" alt="" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script src="{% static 'app/js/auth.js' %}?v=1"></script>
+{% endblock login %}

@@ -12,22 +12,20 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <link rel="icon" type="image/x-icon" href="{% static 'app/image/favicon.ico' %}">
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
         <link href = "{% static 'app/css/all.min.css' %}" rel = "stylesheet" />
         <link href = "{% static 'app/css/owl.carousel.min.css' %}" rel = "stylesheet" />
         <link href = "{% static 'app/css/style.css' %}" rel = "stylesheet" />
-        <link href = "{% static 'app/css/main.css' %}?v=999" rel = "stylesheet" />
+        <link href = "{% static 'app/css/main.css' %}?v=1003" rel = "stylesheet" />
         
         <!--js-->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="{% static 'app/js/owl.carousel.min.js' %}" > </script>
         <script src="{% static 'app/js/all.min.js' %}" > </script>
         <script src="{% static 'app/js/myscript.js' %}" > </script>
-        <script src="{% static 'app/js/cart.js' %}?v=1" > </script>
+        <script src="{% static 'app/js/cart.js' %}?v=4" > </script>
         <script type = "text/javascript" >
             var user = '{{request.user}}'
             function getCookie(name) {
@@ -45,7 +43,19 @@
                 }
                 return cookieValue;
             }
-            const csrftoken = getCookie('csrftoken');
+            function getCsrfFromDom() {
+                const el = document.querySelector('input[name="csrfmiddlewaretoken"]');
+                return el ? el.value : null;
+            }
+            function getCsrfToken() {
+                return getCookie('csrftoken') || getCsrfFromDom() || '';
+            }
+
+            // cart.js đang dùng biến global `csrftoken` => giữ tương thích, nhưng cập nhật sau khi DOM sẵn sàng.
+            var csrftoken = getCsrfToken();
+            document.addEventListener('DOMContentLoaded', function () {
+                csrftoken = getCsrfToken();
+            });
         </script>
 
         <title>Ăn là Ghiền</title>
@@ -53,12 +63,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="">
     </head>
-    <body>
+    <body class="{% if is_home %}page-home{% endif %}">
+        <!-- Hidden CSRF form: đảm bảo trang nào cũng có token + cookie để fetch POST hoạt động -->
+        <form id="csrf-form" method="post" style="display:none">{% csrf_token %}</form>
         <!--Header-->
             <nav class="navbar navbar-expand-lg custom-navbar">
                 <div class="container-fluid">
-                    <a class="navbar-brand d-flex align-items-center" href="#">
-                        <img src="{% static 'app/image/logoweb.png' %}" height="50" class="me-2">
+                    <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+                        <img src="{% static 'app/image/logoweb.png' %}" height="50" class="me-2" alt="Ăn là Ghiền">
+                        <span class="brand-text d-none d-md-inline">Ăn là Ghiền</span>
                     </a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
@@ -85,26 +98,35 @@
                                 <a class="nav-link" href = "#">Liên hệ</a>
                             </li>
                         </ul>
-                        <form class="d-flex" role="search" method = POST action = "{% url "search" %}">
-                            {% csrf_token %}
-                            <input class="form-control me-2" type="search" placeholder="Bạn muốn tìm gì?" aria-label="Search" name = "searched"/>
-                            <button class="btn btn-outline-success btn-search" type="submit">Tìm</button>
+                        <form class="d-flex nav-search" role="search" method="get" action="{% url 'search' %}">
+                            <div class="nav-search__wrap">
+                                <i class="fa-solid fa-magnifying-glass nav-search__icon" aria-hidden="true"></i>
+                                <input
+                                    class="form-control nav-search__input"
+                                    type="search"
+                                    placeholder="Bạn muốn tìm gì hôm nay?"
+                                    aria-label="Search"
+                                    name="q"
+                                    value="{{ request.GET.q|default:'' }}"
+                                    autocomplete="off"
+                                />
+                            </div>
+                            <button class="btn btn-search nav-search__btn" type="submit">
+                                Tìm
+                            </button>
                         </form>
                     </div>
-                    <ul class="navbar-nav nav-right mb-2 mb-lg-0">
+                    <div class="nav-actions">
+                    <ul class="navbar-nav mb-2 mb-lg-0">
                         {% if request.user.is_authenticated %}
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a id="userMenu" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <img src="{{ user.profile.avatar.url }}" class="avatar">
                                     {{ request.user }}
                                 </a>
-                                <ul class="dropdown-menu">
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{% url "profile" %}">Trang cá nhân</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{% url "logout" %}">Đăng xuất</a>
-                                    </li>
+                                <ul class="dropdown-menu dropdown-menu-end nav-user-dropdown" aria-labelledby="userMenu">
+                                    <li><a class="dropdown-item" href="{% url "profile" %}">Trang cá nhân</a></li>
+                                    <li><a class="dropdown-item" href="{% url "logout" %}">Đăng xuất</a></li>
                                 </ul>
                             </li>
                         {% else %}
@@ -116,13 +138,10 @@
                             </li>
                         {% endif %}
                     </ul>
-                    <div class = 'nav-right form-inline my-2 my-lg-0'>
-                        <a href="{% url 'cart' %}">
-                            <img id="cart-icon" src="{% static 'app/image/cart.png' %}">
-                        </a>
-                    </div>
-                    <div class = 'nav-right form-inline my-2 my-lg-0'>
-                        <p id='cart-total'>{{cartItems}}</p>
+                    <a class="nav-cart" href="{% url 'cart' %}" aria-label="Giỏ hàng">
+                        <img id="cart-icon" src="{% static 'app/image/cart.png' %}" alt="Cart">
+                        <span id="cart-total">{{cartItems}}</span>
+                    </a>
                     </div>
                 </div>
             </nav>
@@ -149,10 +168,73 @@
         <!--Giao diện checkout-->
         {% block content_checkout %}{% endblock content_checkout%}
         </main>
-        <!--Footer
-        <footer>
-            Copyright 2026
-        </footer>-->
-        <script src="{% static 'app/js/cart.js' %}" > </script>
+        <!-- Thông báo thêm giỏ thành công (dùng chung mọi trang) -->
+        <div id="add-cart-success-overlay" class="add-cart-success-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="add-cart-success-title">
+            <div class="add-cart-success-dialog">
+                <div class="add-cart-success-iconwrap" aria-hidden="true">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <p id="add-cart-success-title" class="add-cart-success-text">Sản phẩm đã được thêm vào Giỏ hàng</p>
+            </div>
+        </div>
+        <footer class="site-footer">
+            <div class="container py-4">
+                <div class="row g-3">
+                    <div class="col-lg-4">
+                        <div class="footer-brand">
+                            <img src="{% static 'app/image/logoweb.png' %}" alt="Ăn là Ghiền" class="footer-brand__logo">
+                            <div>
+                                <div class="footer-brand__name">Ăn là Ghiền</div>
+                                <div class="footer-brand__desc">Đặt món nhanh, ưu đãi mỗi ngày.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-4">
+                        <div class="footer-title">Danh mục</div>
+                        <div class="footer-links">
+                            {% for i in categories|slice:":6" %}
+                                <a href="{% url 'category' %}?category={{ i.slug }}">{{ i.name }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-4">
+                        <div class="footer-title">Hỗ trợ</div>
+                        <div class="footer-links">
+                            <a href="{% url 'cart' %}">Giỏ hàng</a>
+                            <a href="{% url 'search' %}">Tìm kiếm</a>
+                            {% if request.user.is_authenticated %}
+                                <a href="{% url 'profile' %}">Tài khoản</a>
+                            {% else %}
+                                <a href="{% url 'login' %}">Đăng nhập</a>
+                                <a href="{% url 'register' %}">Đăng ký</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <span>© {{ now|date:"Y" }} Ăn là Ghiền</span>
+                    <span class="footer-dot">•</span>
+                    <span>Powered by Django</span>
+                </div>
+            </div>
+        </footer>
+        {% if is_home %}
+        <script>
+        (function () {
+            if (!document.body.classList.contains('page-home')) return;
+            var nav = document.querySelector('body.page-home .custom-navbar');
+            var main = document.querySelector('body.page-home main');
+            if (!nav || !main) return;
+            function syncMainPad() {
+                main.style.paddingTop = nav.offsetHeight + 'px';
+            }
+            syncMainPad();
+            window.addEventListener('resize', syncMainPad);
+            if (window.ResizeObserver) {
+                new ResizeObserver(syncMainPad).observe(nav);
+            }
+        })();
+        </script>
+        {% endif %}
     </body>
 </html>
