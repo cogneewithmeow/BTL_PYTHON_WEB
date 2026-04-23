@@ -547,6 +547,19 @@ body.page-home .custom-navbar .collapsing {
     transform: translateY(-1px);
 }
 
+.account-error-msg{
+    margin-top: 6px;
+    color: #b91c1c;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.35;
+}
+
+.account-input--error{
+    border-color: rgba(239,68,68,0.75) !important;
+    box-shadow: 0 0 0 5px rgba(239,68,68,0.12) !important;
+}
+
 .account-actions{
     margin-top: 14px;
     display: flex;
@@ -1398,6 +1411,24 @@ h1,h2,h3,h4,h5,h6{
     min-height: 92px;
 }
 
+.checkout-error-msg{
+    margin-top: 6px;
+    color: #b91c1c !important;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.35;
+}
+
+.checkout-input--error{
+    border-color: rgba(239,68,68,0.75) !important;
+    box-shadow: 0 0 0 5px rgba(239,68,68,0.12) !important;
+}
+
+.pay-grid--error .pay-option{
+    border-color: rgba(239,68,68,0.32);
+    background: rgba(254,242,242,0.5);
+}
+
 .pay-grid{
     display: grid;
     gap: 10px;
@@ -1438,6 +1469,19 @@ h1,h2,h3,h4,h5,h6{
     justify-content: space-between;
     gap: 10px;
     flex-wrap: wrap;
+}
+
+.cart-btn--primary:disabled,
+.cart-btn--primary[aria-disabled="true"]{
+    opacity: 0.55 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    filter: none !important;
+    box-shadow: none !important;
+}
+.cart-btn--primary:disabled:hover{
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 .checkout-summary{
@@ -3149,4 +3193,125 @@ body{
     line-height: 1.45;
     color: #111827;
     letter-spacing: -0.01em;
+}
+
+/* =========================
+   CART - Empty cart modal (custom)
+   ========================= */
+.cart-modal-overlay{
+    position: fixed;
+    inset: 0;
+    z-index: 1090;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    background: rgba(17,24,39,0.38);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.28s ease, visibility 0.28s ease;
+}
+.cart-modal-overlay.is-open{
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.cart-modal-dialog{
+    width: 100%;
+    max-width: 520px;
+    background: #fff;
+    border-radius: 22px;
+    border: 1px solid rgba(17,24,39,0.06);
+    box-shadow: 0 22px 55px rgba(17,24,39,0.18);
+    padding: 20px 18px 18px;
+    position: relative;
+    text-align: center;
+    transform: scale(0.96) translateY(10px);
+    opacity: 0;
+    transition: transform 0.32s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.28s ease;
+}
+.cart-modal-overlay.is-open .cart-modal-dialog{
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+.cart-modal-close{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    border: 1px solid rgba(17,24,39,0.10);
+    background: #fff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    color: rgba(55,65,81,0.8);
+    transition: transform .15s ease, background .15s ease, border-color .15s ease, color .15s ease;
+}
+.cart-modal-close:hover{
+    background: #fff8f1;
+    border-color: rgba(249,115,22,0.22);
+    color: rgba(127,29,29,0.95);
+    transform: translateY(-1px);
+}
+
+.cart-modal-icon{
+    width: 78px;
+    height: 78px;
+    border-radius: 24px;
+    margin: 4px auto 10px;
+    display: grid;
+    place-items: center;
+    color: rgba(127,29,29,0.95);
+    background: linear-gradient(180deg, #fff7ed, #ffffff);
+    border: 1px solid rgba(249,115,22,0.18);
+    box-shadow: 0 14px 28px rgba(249,115,22,0.12);
+    font-size: 30px;
+}
+.cart-modal-title{
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+}
+.cart-modal-desc{
+    margin-top: 6px;
+    font-size: 15px;
+    font-weight: 700;
+    color: rgba(17,24,39,0.92);
+    line-height: 1.5;
+}
+.cart-modal-hint{
+    margin-top: 6px;
+    color: rgba(107,114,128,0.95);
+    font-size: 13px;
+    font-weight: 650;
+    line-height: 1.45;
+}
+.cart-modal-actions{
+    margin-top: 14px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+body.is-modal-open{
+    overflow: hidden;
+}
+
+@media (max-width: 576px){
+    .cart-modal-dialog{
+        max-width: 92vw;
+        border-radius: 18px;
+    }
+    .cart-modal-icon{
+        width: 72px;
+        height: 72px;
+        border-radius: 22px;
+    }
 }

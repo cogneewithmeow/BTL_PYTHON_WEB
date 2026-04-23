@@ -16,6 +16,33 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables from a local .env file (optional).
+# This keeps secrets out of source while still being easy to run locally.
+# Support both:
+# - <repo_root>/.env
+# - <django_project_dir>/.env (BASE_DIR)
+def _load_env_file(_path: Path) -> None:
+    if not _path.exists():
+        return
+    try:
+        for _line in _path.read_text(encoding="utf-8").splitlines():
+            _line = _line.strip()
+            if not _line or _line.startswith("#"):
+                continue
+            if "=" not in _line:
+                continue
+            _k, _v = _line.split("=", 1)
+            _k = _k.strip()
+            _v = _v.strip().strip('"').strip("'")
+            if _k and _k not in os.environ:
+                os.environ[_k] = _v
+    except Exception:
+        # Don't crash settings if .env is malformed; rely on real env vars instead.
+        return
+
+_load_env_file(BASE_DIR.parent / ".env")
+_load_env_file(BASE_DIR / ".env")
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/

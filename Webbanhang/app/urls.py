@@ -19,4 +19,5 @@ urlpatterns = [
     path('success/', views.success, name = 'success'),
     path('update_item/', views.updateItem, name = 'update_item'),
     path('update_profile/', views.update_profile, name = 'update_profile'),
+    path('api/chat/', views.api_chat, name='api_chat'),
 ]

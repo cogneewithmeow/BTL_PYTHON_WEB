@@ -1,8 +1,13 @@
 {% extends 'app/base.html' %}
 {% load static %}
 {% load humanize %}
+{% load money %}
 {% block cart_content %}
-<div class="container cart-page py-3 py-lg-4">
+<div
+	class="container cart-page py-3 py-lg-4"
+	data-cart-items="{{ order.get_cart_items|default:0 }}"
+	data-cart-has-items="{% if items %}1{% else %}0{% endif %}"
+>
 	<div class="cart-header mb-3">
 		<div>
 			<div class="cart-breadcrumb">
@@ -20,10 +25,6 @@
 		<div class="d-none d-lg-flex align-items-center gap-2">
 			<a class="btn cart-btn cart-btn--ghost" href="{% url 'home' %}">
 				<i class="fa-solid fa-store me-2"></i>Mua thêm
-			</a>
-			<a class="btn cart-btn cart-btn--primary" href="{% url 'checkout' %}">
-				Tiến hành thanh toán
-				<i class="fa-solid fa-arrow-right-long ms-2"></i>
 			</a>
 		</div>
 	</div>
@@ -53,18 +54,18 @@
 							<div class="cart-item__name">{{ item.product.name }}</div>
 							<div class="cart-item__meta d-md-none">
 								<div class="cart-item__price">
-									{{ item.product.price|intcomma }}đ
+									{{ item.product.price|dot_thousands }}đ
 								</div>
 								<div class="cart-item__lineTotal">
 									<span class="text-muted">Thành tiền:</span>
-									<strong class="ms-1 js-cart-line-total">{{ item.get_total|intcomma }}đ</strong>
+									<strong class="ms-1 js-cart-line-total">{{ item.get_total|dot_thousands }}đ</strong>
 								</div>
 							</div>
 						</div>
 
 						<div class="cart-item__price d-none d-md-flex">
 							<div class="cart-price">
-								<span class="cart-price__current">{{ item.product.price|intcomma }}đ</span>
+								<span class="cart-price__current">{{ item.product.price|dot_thousands }}đ</span>
 							</div>
 						</div>
 
@@ -111,7 +112,7 @@
 
 						<div class="cart-item__total d-none d-md-flex">
 							<div class="cart-total">
-								<strong class="cart-total__money js-cart-line-total">{{ item.get_total|intcomma }}đ</strong>
+								<strong class="cart-total__money js-cart-line-total">{{ item.get_total|dot_thousands }}đ</strong>
 							</div>
 						</div>
 
@@ -146,7 +147,7 @@
 					</div>
 					<div class="cart-summary__row">
 						<span class="text-muted">Tạm tính</span>
-						<strong class="js-cart-page-subtotal">{{ order.get_cart_total|intcomma }}đ</strong>
+						<strong class="js-cart-page-subtotal">{{ order.get_cart_total|dot_thousands }}đ</strong>
 					</div>
 					<div class="cart-summary__row">
 						<span class="text-muted">Phí vận chuyển</span>
@@ -155,21 +156,15 @@
 					<div class="cart-summary__divider"></div>
 					<div class="cart-summary__row cart-summary__row--total">
 						<span>Tổng thanh toán</span>
-						<span class="cart-summary__money js-cart-page-grand-total">{{ order.get_cart_total|intcomma }}đ</span>
+						<span class="cart-summary__money js-cart-page-grand-total">{{ order.get_cart_total|dot_thousands }}đ</span>
 					</div>
-					<a class="btn cart-btn cart-btn--primary w-100 mt-2" href="{% url 'checkout' %}">
+					<a class="btn cart-btn cart-btn--primary w-100 mt-2" href="{% url 'checkout' %}" data-checkout-btn>
 						Tiến hành thanh toán
 					</a>
 					<div class="cart-summary__hint mt-2">
 						Nhấn “Tiến hành thanh toán” để nhập địa chỉ và xác nhận đơn hàng.
 					</div>
 				</div>
-			</div>
-
-			<div class="d-lg-none mt-3">
-				<a class="btn cart-btn cart-btn--primary w-100" href="{% url 'checkout' %}">
-					Tiến hành thanh toán
-				</a>
 			</div>
 		</div>
 	</div>
@@ -187,5 +182,103 @@
 		</div>
 	</div>
 	{% endif %}
+
+	<!-- Empty cart modal (custom UI, no browser alert) -->
+	<div
+		id="empty-cart-modal"
+		class="cart-modal-overlay"
+		aria-hidden="true"
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="empty-cart-modal-title"
+	>
+		<div class="cart-modal-dialog" role="document">
+			<button type="button" class="cart-modal-close" aria-label="Đóng">
+				<i class="fa-solid fa-xmark"></i>
+			</button>
+			<div class="cart-modal-icon" aria-hidden="true">
+				<i class="fa-solid fa-cart-shopping"></i>
+			</div>
+			<div id="empty-cart-modal-title" class="cart-modal-title">Giỏ hàng đang trống</div>
+			<div class="cart-modal-desc">Bạn vẫn chưa chọn sản phẩm nào để mua.</div>
+			<div class="cart-modal-hint">Vui lòng quay lại trang sản phẩm để tiếp tục mua sắm.</div>
+			<div class="cart-modal-actions">
+				<button type="button" class="btn cart-btn cart-btn--primary px-4 cart-modal-ok">OK</button>
+				<a class="btn cart-btn cart-btn--ghost" href="{% url 'home' %}">Quay lại mua sắm</a>
+			</div>
+		</div>
+	</div>
 </div>
+
+<script>
+	(function () {
+		const cartPage = document.querySelector('.cart-page');
+		if (!cartPage) return;
+
+		const emptyCartModal = document.getElementById('empty-cart-modal');
+		const okBtn = emptyCartModal ? emptyCartModal.querySelector('.cart-modal-ok') : null;
+		const closeBtn = emptyCartModal ? emptyCartModal.querySelector('.cart-modal-close') : null;
+
+		function isCartEmpty() {
+			// Ưu tiên dữ liệu thực tế từ backend (order.get_cart_items)
+			const raw = cartPage.getAttribute('data-cart-items');
+			const n = raw != null ? parseInt(String(raw).trim(), 10) : NaN;
+			if (!Number.isNaN(n)) return n <= 0;
+
+			// Fallback: đọc từ UI (nếu DOM đã render số lượng)
+			const totalEl = cartPage.querySelector('.js-cart-page-total-items');
+			const t = totalEl ? parseInt(String(totalEl.textContent || '').replace(/[^\d]/g, ''), 10) : NaN;
+			return Number.isNaN(t) ? true : t <= 0;
+		}
+
+		function setEmptyCartModalOpen(isOpen) {
+			if (!emptyCartModal) return;
+			emptyCartModal.classList.toggle('is-open', !!isOpen);
+			emptyCartModal.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+			document.body.classList.toggle('is-modal-open', !!isOpen);
+		}
+
+		function showEmptyCartModal() {
+			setEmptyCartModalOpen(true);
+			// focus OK for accessibility + keyboard UX
+			window.setTimeout(() => {
+				if (okBtn) okBtn.focus();
+			}, 0);
+		}
+
+		function handleCheckout(e) {
+			if (!isCartEmpty()) return;
+			e.preventDefault();
+			e.stopPropagation();
+			showEmptyCartModal();
+		}
+
+		// Bind all checkout buttons in Cart page
+		cartPage.querySelectorAll('[data-checkout-btn]').forEach((el) => {
+			el.addEventListener('click', handleCheckout);
+		});
+
+		// Close interactions
+		function closeModal() {
+			setEmptyCartModalOpen(false);
+		}
+
+		if (okBtn) okBtn.addEventListener('click', closeModal);
+		if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+		// Click outside dialog to close
+		if (emptyCartModal) {
+			emptyCartModal.addEventListener('click', (e) => {
+				if (e.target === emptyCartModal) closeModal();
+			});
+		}
+
+		// ESC to close
+		document.addEventListener('keydown', (e) => {
+			if (e.key !== 'Escape') return;
+			if (!emptyCartModal || !emptyCartModal.classList.contains('is-open')) return;
+			closeModal();
+		});
+	})();
+</script>
 {% endblock cart_content %}

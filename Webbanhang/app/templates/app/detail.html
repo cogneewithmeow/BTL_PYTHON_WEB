@@ -1,6 +1,7 @@
 {% extends "app/base.html" %}
 {% load static %}
 {% load humanize %}
+{% load money %}
 {% block search %}
   <link rel="stylesheet" href="{% static 'app/css/reviews.css' %}?v=1" />
   <script src="{% static 'app/js/reviews.js' %}?v=1"></script>
@@ -93,13 +94,13 @@
                 <div class="pd-rating__sep"></div>
                 <a class="pd-rating__link" href="#pd-reviews">{{ review_count }} Đánh giá</a>
                 <div class="pd-rating__sep"></div>
-                <span class="pd-muted">Đồ ăn nóng • Làm mới mỗi ngày</span>
+                <span class="pd-muted">Khẩu phần: 1–2 người</span>
               </div>
 
               <!-- Price block -->
               <div class="pd-pricebox">
                 <div class="pd-price">
-                  {{ product.price|intcomma }}<span class="pd-currency">đ</span>
+                  {{ product.price|dot_thousands }}<span class="pd-currency">đ</span>
                 </div>
                 <div class="pd-submeta">
                   <span class="pd-chip">
@@ -545,7 +546,7 @@
                   </a>
                   <div class="p-card__bottom">
                     <div class="p-card__price">
-                      {{p.price|intcomma}} <span class="home-money">VNĐ</span>
+                      {{ p.price|dot_thousands }} <span class="home-money">VNĐ</span>
                     </div>
                     <div class="p-card__actions">
                       <button data-product="{{p.id}}" data-action="add" class="btn p-card__btn p-card__btn--cart update-cart">

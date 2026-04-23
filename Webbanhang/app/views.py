@@ -5,16 +5,24 @@ import json
 import time
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Avg, Count
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.db.models import F
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_protect
+import logging
 
 from .forms import ReviewForm
+from .ai.chat_service import chat_reply, ChatProviderError
 
 # Create your views here.
+import re
+
+logger = logging.getLogger(__name__)
 
 def profile(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
@@ -556,11 +564,51 @@ def checkout(request):
     cartItems = order.get_cart_items
 
     if request.method == "POST":
+        # Hard-block server side: must confirm info first
+        if order.get_cart_items <= 0:
+            messages.error(request, "Giỏ hàng của bạn đang trống.")
+            return redirect('checkout')
+
+        if request.POST.get("is_info_confirmed") != "1":
+            messages.error(request, "Vui lòng xác nhận thông tin trước khi đặt hàng.")
+            return redirect('checkout')
+
         address = request.POST.get("address")
         city = request.POST.get("city")
         state = request.POST.get("state")
         mobile = request.POST.get("phone")   # ⚠️ bạn đang dùng name="phone"
         pay_method = request.POST.get("pay_method")
+        name = (request.POST.get("name") or "").strip()
+        email = (request.POST.get("email") or "").strip()
+
+        errors = []
+        if not name:
+            errors.append("Vui lòng nhập họ và tên.")
+        if not email:
+            errors.append("Vui lòng nhập email.")
+        elif not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
+            errors.append("Vui lòng nhập email hợp lệ.")
+
+        digits = re.sub(r"[^\d]", "", mobile or "")
+        if not digits:
+            errors.append("Vui lòng nhập số điện thoại.")
+        elif not re.match(r"^0\d{9,10}$", digits):
+            errors.append("Vui lòng nhập số điện thoại hợp lệ.")
+
+        if not (state or "").strip():
+            errors.append("Vui lòng nhập thành phố.")
+        if not (city or "").strip():
+            errors.append("Vui lòng nhập quận/huyện.")
+        if not (address or "").strip():
+            errors.append("Vui lòng nhập địa chỉ.")
+
+        if pay_method not in {"cod", "bank"}:
+            errors.append("Vui lòng chọn phương thức thanh toán.")
+
+        if errors:
+            for msg in errors[:3]:
+                messages.error(request, msg)
+            return redirect('checkout')
 
         # 🔥 Lưu payment vào order
         transaction_id = str(int(time.time()))
@@ -673,43 +721,144 @@ def update_profile(request):
         cartItems = order['get_cart_items']
 
     if request.method == "POST":
+        if not request.user.is_authenticated:
+            messages.error(request, "Vui lòng đăng nhập để cập nhật hồ sơ.")
+            return redirect('login')
+
         user = request.user
         profile = user.profile
-        username = request.POST.get("username")
-        # user info
-        username = request.POST.get("username")
-        if username:
-            user.username = username
 
-        first_name = request.POST.get("first_name")
-        if first_name:
-            user.first_name = first_name
+        # USER INFO
+        username = (request.POST.get("username") or "").strip()
+        first_name = (request.POST.get("first_name") or "").strip()
+        last_name = (request.POST.get("last_name") or "").strip()
+        email = (request.POST.get("email") or "").strip()
 
-        last_name = request.POST.get("last_name")
-        if last_name:
-            user.last_name = last_name
+        # PROFILE (read early so we can re-render with user's input on validation error)
+        phone = (request.POST.get("phone") or "").strip()
+        address = (request.POST.get("address") or "").strip()
 
-        email = request.POST.get("email")
-        if email:
-            user.email = email
+        form_values = {
+            "username": username,
+            "first_name": first_name,
+            "last_name": last_name,
+            "email": email,
+            "phone": phone,
+            "address": address,
+        }
+        form_errors = {}
 
-        user.save()
+        # Required validation: username / first_name / last_name
+        if not username:
+            form_errors["username"] = "Vui lòng nhập tên đăng nhập"
+        if not first_name:
+            form_errors["first_name"] = "Vui lòng nhập họ"
+        if not last_name:
+            form_errors["last_name"] = "Vui lòng nhập tên"
+
+        if form_errors:
+            categories = Category.objects.filter(is_sub = False)
+            active_category = request.GET.get('category','')
+            context = {
+                'items': items,
+                'order': order,
+                'cartItems': cartItems,
+                'categories': categories,
+                'active_category': active_category,
+                'form_errors': form_errors,
+                'form_values': form_values,
+            }
+            return render(request, 'app/update_profile.html', context)
+
+        # Nếu người dùng để trống các trường quan trọng, giữ nguyên giá trị cũ
+        # (tránh set username = "" hoặc toàn khoảng trắng làm không lưu được thay đổi khác).
+        if username != user.username and User.objects.filter(username=username).exclude(pk=user.pk).exists():
+            categories = Category.objects.filter(is_sub = False)
+            active_category = request.GET.get('category','')
+            context = {
+                'items': items,
+                'order': order,
+                'cartItems': cartItems,
+                'categories': categories,
+                'active_category': active_category,
+                'form_errors': {"username": "Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác."},
+                'form_values': form_values,
+            }
+            return render(request, 'app/update_profile.html', context)
+
+        user.username = username
+        user.first_name = first_name
+        user.last_name = last_name
+        # Optional fields: allow empty values (user can clear)
+        user.email = email
 
         # PROFILE
-        phone = request.POST.get("phone")
-        if phone:
-            profile.phone = phone
-
-        address = request.POST.get("address")
-        if address:
-            profile.address = address
-
-        
+        profile.phone = phone
+        profile.address = address
         if 'avatar' in request.FILES:
             profile.avatar = request.FILES['avatar']
 
-        profile.save()
+        try:
+            user.save()
+            profile.save()
+        except Exception:
+            categories = Category.objects.filter(is_sub = False)
+            active_category = request.GET.get('category','')
+            context = {
+                'items': items,
+                'order': order,
+                'cartItems': cartItems,
+                'categories': categories,
+                'active_category': active_category,
+                'form_errors': {"__all__": "Không thể lưu thay đổi. Vui lòng kiểm tra lại thông tin."},
+                'form_values': form_values,
+            }
+            return render(request, 'app/update_profile.html', context)
+
+        messages.success(request, "Đã lưu thay đổi hồ sơ.")
+        return redirect('profile')
     categories = Category.objects.filter(is_sub = False)
     active_category = request.GET.get('category','')
     context = {'items': items, 'order': order, 'cartItems': cartItems, 'categories':categories, 'active_category':active_category}
     return render(request, 'app/update_profile.html', context)
+
+
+@require_POST
+@csrf_protect
+def api_chat(request):
+    try:
+        payload = json.loads(request.body.decode("utf-8") or "{}")
+    except Exception:
+        return JsonResponse({"ok": False, "error": "Dữ liệu không hợp lệ."}, status=400)
+
+    message = (payload.get("message") or "").strip()
+    history = payload.get("history") or []
+
+    if not message:
+        return JsonResponse({"ok": False, "error": "Vui lòng nhập nội dung trước khi gửi."}, status=400)
+    if not isinstance(history, list):
+        history = []
+
+    safe_history = []
+    for m in history[-20:]:
+        if not isinstance(m, dict):
+            continue
+        role = m.get("role")
+        content = m.get("content")
+        if role in {"user", "assistant"} and isinstance(content, str) and content.strip():
+            safe_history.append({"role": role, "content": content.strip()})
+
+    user_label = request.user.username if getattr(request, "user", None) and request.user.is_authenticated else None
+
+    try:
+        res = chat_reply(message=message, history=safe_history, user_label=user_label)
+        return JsonResponse({"ok": True, "reply": res.reply, "provider": res.provider})
+    except ChatProviderError as e:
+        # Log rõ nguyên nhân để debug (không trả chi tiết ra client)
+        logger.warning("ChatProviderError in /api/chat/: %s", str(e), exc_info=True)
+        return JsonResponse(
+            {"ok": False, "error": "Chatbot chưa sẵn sàng hoặc đang bận. Vui lòng thử lại sau."},
+            status=503,
+        )
+    except Exception:
+        return JsonResponse({"ok": False, "error": "Đã có lỗi xảy ra, vui lòng thử lại."}, status=500)

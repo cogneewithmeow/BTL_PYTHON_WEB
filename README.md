@@ -13,6 +13,7 @@ Một ứng dụng web bán hàng được xây dựng bằng **Django**, cho ph
 - ✅ **Sản Phẩm Số Hóa** - Hỗ trợ sản phẩm kỹ thuật số
 - ✅ **Tìm Kiếm & Danh Mục** - Tìm kiếm sản phẩm, lọc theo danh mục
 - ✅ **Profile Người Dùng** - Cập nhật thông tin cá nhân, avatar
+- ✅ **Chatbot AI** - Hỏi đáp trực tiếp ngay trên website (floating button + chat panel)
 
 ## 🏗️ Cấu Trúc Dự Án
 
@@ -156,6 +157,29 @@ Server sẽ chạy tại: `http://127.0.0.1:8000/`
 - **Thành Công** (`/success/` - success) - Trang xác nhận thanh toán
 - **Cập Nhật Giỏ Hàng** (`/update_item/` - updateItem) - AJAX cập nhật số lượng
 - **Cập Nhật Profile** (`/update_profile/` - update_profile) - Cập nhật thông tin cá nhân
+- **API Chatbot AI** (`/api/chat/` - api_chat) - Nhận `message/history` và trả `reply`
+
+## 🤖 Cấu hình Chatbot AI (OpenRouter)
+
+Chatbot được thiết kế để **chỉ backend** dùng API key (tách riêng trong `app/ai/chat_service.py`) và gọi AI qua **OpenRouter**:
+
+- Base URL: `https://openrouter.ai/api/v1`
+- Endpoint: `POST /api/chat/`
+
+### Biến môi trường
+
+- **`OPENAI_API_KEY`**: bắt buộc để chatbot hoạt động thật (key OpenRouter)
+- **`OPENAI_MODEL`**: tùy chọn, mặc định `openai/gpt-4o-mini`
+
+File mẫu: `.env.example`
+
+### Ví dụ (Windows PowerShell)
+
+```powershell
+$env:OPENAI_API_KEY="YOUR_KEY"
+$env:OPENAI_MODEL="openai/gpt-4o-mini"
+python manage.py runserver
+```
 
 ## 🔧 Công Nghệ Sử Dụng
 

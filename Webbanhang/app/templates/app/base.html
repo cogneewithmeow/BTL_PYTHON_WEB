@@ -17,6 +17,7 @@
         <link href = "{% static 'app/css/owl.carousel.min.css' %}" rel = "stylesheet" />
         <link href = "{% static 'app/css/style.css' %}" rel = "stylesheet" />
         <link href = "{% static 'app/css/main.css' %}?v=1003" rel = "stylesheet" />
+        <link href = "{% static 'app/css/chatbot.css' %}?v=1" rel = "stylesheet" />
         
         <!--js-->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -92,7 +93,13 @@
                                 </ul>
                             </li>
                             <li class = "nav-item">
-                                <a class = "nav-link" href = "#" > About me </a>
+                                <a
+                                    class="nav-link"
+                                    href="#"
+                                    role="button"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#aboutMeModal"
+                                >About me</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href = "#">Liên hệ</a>
@@ -180,7 +187,7 @@
         <footer class="site-footer">
             <div class="container py-4">
                 <div class="row g-3">
-                    <div class="col-lg-4">
+                    <div class="col-lg-3">
                         <div class="footer-brand">
                             <img src="{% static 'app/image/logoweb.png' %}" alt="Ăn là Ghiền" class="footer-brand__logo">
                             <div>
@@ -189,7 +196,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-6 col-lg-4">
+                    <div class="col-6 col-lg-3">
                         <div class="footer-title">Danh mục</div>
                         <div class="footer-links">
                             {% for i in categories|slice:":6" %}
@@ -197,11 +204,17 @@
                             {% endfor %}
                         </div>
                     </div>
-                    <div class="col-6 col-lg-4">
+                    <div class="col-6 col-lg-3">
                         <div class="footer-title">Hỗ trợ</div>
                         <div class="footer-links">
                             <a href="{% url 'cart' %}">Giỏ hàng</a>
                             <a href="{% url 'search' %}">Tìm kiếm</a>
+                            <a
+                                href="#"
+                                role="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#aboutMeModal"
+                            >About me</a>
                             {% if request.user.is_authenticated %}
                                 <a href="{% url 'profile' %}">Tài khoản</a>
                             {% else %}
@@ -218,6 +231,106 @@
                 </div>
             </div>
         </footer>
+
+        <!-- About me modal -->
+        <div class="modal fade" id="aboutMeModal" tabindex="-1" aria-labelledby="aboutMeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="aboutMeModalLabel">About me</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="line-height: 1.7">
+                        🍟 <em>Thiên đường ăn vặt gọi tên bạn!</em> 🍭
+                        <br/><br/>
+                        Bạn đang buồn miệng? Bạn đang stress? Hay đơn giản là… muốn ăn cho vui? 😆
+                        <br/>
+                        Chào mừng bạn đến với <em>trang web bán đồ ăn vặt “đỉnh của chóp”</em> – nơi mà chỉ cần lướt 5 phút là bụng réo ầm ầm!
+                        <br/><br/>
+                        Tại đây có gì?
+                        <br/>👉 Bánh tráng trộn “gây nghiện”
+                        <br/>👉 Khô gà cay xé lưỡi nhưng vẫn muốn ăn tiếp
+                        <br/>👉 Snack giòn rụm ăn là hết buồn
+                        <br/>👉 Kẹo ngọt ngào hơn cả “crush” của bạn
+                        <br/><br/>
+                        💻 Chỉ cần vài cú click là đồ ăn tới tận cửa – nhanh như cách bạn hết tiền cuối tháng!
+                        <br/>📦 Đóng gói xinh xắn, sạch sẽ, nhìn là muốn “unbox” liền tay
+                        <br/>💸 Giá cả “hạt dẻ”, ưu đãi nhiều đến mức mua xong vẫn thấy lời
+                        <br/><br/>
+                        🔥 Đặc biệt: luôn cập nhật trend ăn vặt mới nhất – bạn chưa thử là bạn “tối cổ” đó nha!
+                        <br/><br/>
+                        Còn chờ gì nữa? Lên web ngay, chọn món liền tay, ăn vặt thả ga – vui hết nấc! 😋
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Chatbot (global) -->
+        <div class="ai-chatbot" data-ai-chatbot-root>
+            <button
+                type="button"
+                class="ai-chatbot__btn"
+                data-ai-chatbot-btn
+                aria-label="Mở chatbot hỗ trợ"
+                aria-expanded="false"
+            >
+                <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
+            </button>
+
+            <section
+                class="ai-chatbot__panel"
+                data-ai-chatbot-panel
+                aria-label="Trợ lý AI"
+                aria-hidden="true"
+            >
+                <header class="ai-chatbot__header">
+                    <div class="ai-chatbot__titlewrap">
+                        <div class="ai-chatbot__badge" aria-hidden="true">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <div style="min-width:0">
+                            <p class="ai-chatbot__title">Trợ lý AI</p>
+                            <div class="ai-chatbot__subtitle">Hỏi đáp nhanh về sản phẩm/đặt hàng</div>
+                        </div>
+                    </div>
+                    <div class="ai-chatbot__head-actions">
+                        <button type="button" class="ai-chatbot__iconbtn" data-ai-chatbot-reset aria-label="Xóa hội thoại">
+                            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="ai-chatbot__iconbtn" data-ai-chatbot-close aria-label="Đóng chatbot">
+                            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </header>
+
+                <div class="ai-chatbot__messages" data-ai-chatbot-messages>
+                    <div class="ai-chatbot__empty" data-ai-chatbot-empty>
+                        Bạn có thể hỏi về sản phẩm, thanh toán, vận chuyển, đổi trả…
+                        <br/>Ví dụ: “Phí ship tính thế nào?” hoặc “Gợi ý món bán chạy?”
+                    </div>
+                </div>
+
+                <div class="ai-chatbot__composer">
+                    <div class="ai-chatbot__inputwrap">
+                        <input
+                            type="text"
+                            class="ai-chatbot__input"
+                            data-ai-chatbot-input
+                            placeholder="Nhập câu hỏi của bạn…"
+                            autocomplete="off"
+                        />
+                    </div>
+                    <button type="button" class="ai-chatbot__send" data-ai-chatbot-send aria-label="Gửi">
+                        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                    </button>
+                    <div class="ai-chatbot__status" data-ai-chatbot-status></div>
+                </div>
+            </section>
+        </div>
+
         {% if is_home %}
         <script>
         (function () {
@@ -236,5 +349,7 @@
         })();
         </script>
         {% endif %}
+
+        <script src="{% static 'app/js/chatbot.js' %}?v=1"></script>
     </body>
 </html>

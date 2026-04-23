@@ -1,6 +1,7 @@
 {% extends "app/base.html" %}
 {% load static %}
 {% load humanize %}
+{% load money %}
 {% block banner_slider %}
     <section class="home-hero">
         <div class="container">
@@ -131,7 +132,7 @@
                                 </a>
                                 <div class="p-card__bottom">
                                     <div class="p-card__price">
-                                        {{product.price|intcomma}} <span class="home-money">VNĐ</span>
+                                        {{ product.price|dot_thousands }} <span class="home-money">VNĐ</span>
                                     </div>
                                     <div class="p-card__actions">
                                         <button data-product="{{product.id}}" data-action="add" class="btn p-card__btn p-card__btn--cart update-cart">

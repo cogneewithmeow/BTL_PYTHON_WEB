@@ -1,6 +1,7 @@
 {% extends 'app/base.html' %}
 {% load static %}
 {% load humanize %}
+{% load money %}
 {% block content_checkout %}
 <div class="container checkout-page py-3 py-lg-4">
     <div class="checkout-header mb-3">
@@ -20,8 +21,9 @@
         </div>
     </div>
 
-    <form method="POST" class="row g-3 g-lg-4 align-items-start">
+    <form method="POST" class="row g-3 g-lg-4 align-items-start" id="checkoutForm" novalidate>
         {% csrf_token %}
+        <input type="hidden" name="is_info_confirmed" id="is_info_confirmed" value="0">
 
         <div class="col-12 col-lg-8">
             <div class="checkout-card">
@@ -35,27 +37,33 @@
                     <div class="row g-3">
                         <div class="col-12 col-md-6">
                             <label class="checkout-label">Họ và tên</label>
-                            <input type="text" class="checkout-input" name="name" placeholder="Ví dụ: Nguyễn Văn A">
+                            <input type="text" class="checkout-input" id="checkout_name" name="name" placeholder="Ví dụ: Nguyễn Văn A" autocomplete="name" aria-describedby="error_name">
+                            <div class="checkout-error-msg" id="error_name" data-error-for="name"></div>
                         </div>
                         <div class="col-12 col-md-6">
                             <label class="checkout-label">Email</label>
-                            <input type="email" class="checkout-input" name="email" placeholder="Ví dụ: email@domain.com">
+                            <input type="email" class="checkout-input" id="checkout_email" name="email" placeholder="Ví dụ: email@domain.com" autocomplete="email" aria-describedby="error_email">
+                            <div class="checkout-error-msg" id="error_email" data-error-for="email"></div>
                         </div>
                         <div class="col-12 col-md-6">
                             <label class="checkout-label">Số điện thoại</label>
-                            <input type="text" class="checkout-input" name="phone" placeholder="Ví dụ: 0901 234 567">
+                            <input type="text" class="checkout-input" id="checkout_phone" name="phone" placeholder="Ví dụ: 0901 234 567" inputmode="tel" autocomplete="tel" aria-describedby="error_phone">
+                            <div class="checkout-error-msg" id="error_phone" data-error-for="phone"></div>
                         </div>
                         <div class="col-12 col-md-6">
                             <label class="checkout-label">Thành phố</label>
-                            <input type="text" class="checkout-input" name="state" placeholder="Ví dụ: Hà Nội / TP.HCM">
+                            <input type="text" class="checkout-input" id="checkout_state" name="state" placeholder="Ví dụ: Hà Nội / TP.HCM" autocomplete="address-level1" aria-describedby="error_state">
+                            <div class="checkout-error-msg" id="error_state" data-error-for="state"></div>
                         </div>
                         <div class="col-12 col-md-6">
                             <label class="checkout-label">Quận/Huyện</label>
-                            <input type="text" class="checkout-input" name="city" placeholder="Ví dụ: Quận 1 / Cầu Giấy">
+                            <input type="text" class="checkout-input" id="checkout_city" name="city" placeholder="Ví dụ: Quận 1 / Cầu Giấy" autocomplete="address-level2" aria-describedby="error_city">
+                            <div class="checkout-error-msg" id="error_city" data-error-for="city"></div>
                         </div>
                         <div class="col-12">
                             <label class="checkout-label">Địa chỉ</label>
-                            <textarea class="checkout-input checkout-textarea" name="address" rows="3" placeholder="Số nhà, tên đường, phường/xã..."></textarea>
+                            <textarea class="checkout-input checkout-textarea" id="checkout_address" name="address" rows="3" placeholder="Số nhà, tên đường, phường/xã..." autocomplete="street-address" aria-describedby="error_address"></textarea>
+                            <div class="checkout-error-msg" id="error_address" data-error-for="address"></div>
                         </div>
                     </div>
                 </div>
@@ -74,17 +82,16 @@
                             <input class="pay-radio" type="radio" name="pay_method" value="cod" checked>
                             <span class="pay-option__content">
                                 <span class="pay-option__title">Thanh toán khi nhận hàng (COD)</span>
-                                <span class="pay-option__desc">Phù hợp đơn hàng thông thường.</span>
                             </span>
                         </label>
                         <label class="pay-option">
                             <input class="pay-radio" type="radio" name="pay_method" value="bank">
                             <span class="pay-option__content">
                                 <span class="pay-option__title">Chuyển khoản ngân hàng</span>
-                                <span class="pay-option__desc">Hiển thị UI (backend có thể xử lý sau).</span>
                             </span>
                         </label>
                     </div>
+                    <div class="checkout-error-msg" id="error_pay_method" data-error-for="pay_method"></div>
                 </div>
             </div>
 
@@ -97,9 +104,6 @@
                 </div>
                 <div class="checkout-card__body">
                     <textarea class="checkout-input checkout-textarea" name="note_ui" rows="2" placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi giao..."></textarea>
-                    <div class="checkout-hint mt-2">
-                        Ghi chú này chỉ hiển thị giao diện, không ảnh hưởng backend hiện tại.
-                    </div>
                 </div>
             </div>
 
@@ -107,10 +111,13 @@
                 <a href="{% url 'cart' %}" class="btn cart-btn cart-btn--ghost">
                     <i class="fa-solid fa-arrow-left-long me-2"></i>Về giỏ hàng
                 </a>
-                <button type="submit" class="btn cart-btn cart-btn--primary">
-                    Xác nhận đơn hàng
+                <button type="button" class="btn cart-btn cart-btn--primary" data-confirm-info>
+                    Xác nhận thông tin
                     <i class="fa-solid fa-check ms-2"></i>
                 </button>
+            </div>
+            <div class="checkout-hint mt-2" id="infoConfirmedStatus" hidden>
+                <strong>Đã xác nhận thông tin.</strong> Nếu bạn chỉnh sửa lại, vui lòng xác nhận lại trước khi đặt hàng.
             </div>
         </div>
 
@@ -127,13 +134,13 @@
                         <div class="summary-item__info">
                             <div class="summary-item__name">{{ item.product.name }}</div>
                             <div class="summary-item__meta">
-                                <span class="text-muted">{{ item.product.price|intcomma }}đ</span>
+                                <span class="text-muted">{{ item.product.price|dot_thousands }}đ</span>
                                 <span class="summary-item__dot">•</span>
                                 <span class="text-muted">x{{ item.quantity }}</span>
                             </div>
                         </div>
                         <div class="summary-item__total">
-                            <strong>{{ item.get_total|intcomma }}đ</strong>
+                            <strong>{{ item.get_total|dot_thousands }}đ</strong>
                         </div>
                     </div>
                     {% endfor %}
@@ -142,7 +149,7 @@
                 <div class="checkout-summary__calc">
                     <div class="calc-row">
                         <span class="text-muted">Tạm tính</span>
-                        <strong>{{ order.get_cart_total|intcomma }}đ</strong>
+                        <strong>{{ order.get_cart_total|dot_thousands }}đ</strong>
                     </div>
                     <div class="calc-row">
                         <span class="text-muted">Phí vận chuyển</span>
@@ -151,18 +158,284 @@
                     <div class="calc-divider"></div>
                     <div class="calc-row calc-row--total">
                         <span>Tổng thanh toán</span>
-                        <span class="calc-money">{{ order.get_cart_total|intcomma }}đ</span>
+                        <span class="calc-money">{{ order.get_cart_total|dot_thousands }}đ</span>
                     </div>
                 </div>
 
-                <button type="submit" class="btn cart-btn cart-btn--primary w-100 mt-2">
+                <button type="submit" class="btn cart-btn cart-btn--primary w-100 mt-2" data-place-order disabled>
                     Đặt hàng
                 </button>
                 <div class="checkout-hint mt-2">
+                    <span id="placeOrderHint">Vui lòng xác nhận thông tin trước khi đặt hàng.</span><br>
                     Bằng việc bấm “Đặt hàng”, bạn đồng ý với các điều khoản mua hàng.
                 </div>
             </div>
         </div>
     </form>
 </div>
+
+<script>
+  (function () {
+    const form = document.getElementById('checkoutForm');
+    if (!form) return;
+
+    const fields = {
+      name: form.querySelector('[name="name"]'),
+      email: form.querySelector('[name="email"]'),
+      phone: form.querySelector('[name="phone"]'),
+      state: form.querySelector('[name="state"]'),
+      city: form.querySelector('[name="city"]'),
+      address: form.querySelector('[name="address"]'),
+    };
+
+    const payRadios = Array.from(form.querySelectorAll('input[name="pay_method"]'));
+    const confirmButton = form.querySelector('[data-confirm-info]');
+    const placeOrderButton = form.querySelector('[data-place-order]');
+    const confirmHidden = form.querySelector('#is_info_confirmed');
+    const infoConfirmedStatus = document.getElementById('infoConfirmedStatus');
+    const placeOrderHint = document.getElementById('placeOrderHint');
+
+    const touched = Object.create(null);
+
+    const state = {
+      formData: {},
+      errors: {},
+      isInfoConfirmed: false,
+      isFormValid: false,
+      confirmedSnapshot: null,
+    };
+
+    function normalizePhone(value) {
+      return String(value || '').replace(/[^\d]/g, '');
+    }
+
+    function getPayMethod() {
+      const checked = payRadios.find(r => r.checked);
+      return checked ? checked.value : '';
+    }
+
+    function validateEmail(value) {
+      const v = String(value || '').trim();
+      if (!v) return 'Vui lòng nhập email';
+      // Simple, safe email check for UI validation
+      const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      if (!ok) return 'Vui lòng nhập email hợp lệ';
+      return '';
+    }
+
+    function validatePhone(value) {
+      const digits = normalizePhone(value);
+      if (!digits) return 'Vui lòng nhập số điện thoại';
+      const ok = /^0\d{9,10}$/.test(digits); // VN: 10-11 digits starting with 0
+      if (!ok) return 'Vui lòng nhập số điện thoại hợp lệ';
+      return '';
+    }
+
+    function validateRequired(value, message) {
+      const v = String(value || '').trim();
+      return v ? '' : message;
+    }
+
+    function validatePayMethod() {
+      const value = getPayMethod();
+      const allowed = new Set(payRadios.map(r => r.value));
+      if (!value || !allowed.has(value)) return 'Vui lòng chọn phương thức thanh toán';
+      return '';
+    }
+
+    function readFormData() {
+      return {
+        name: String(fields.name?.value || '').trim(),
+        email: String(fields.email?.value || '').trim(),
+        phone: String(fields.phone?.value || '').trim(),
+        state: String(fields.state?.value || '').trim(),
+        city: String(fields.city?.value || '').trim(),
+        address: String(fields.address?.value || '').trim(),
+        pay_method: getPayMethod(),
+      };
+    }
+
+    function validateCheckoutForm(formData) {
+      return {
+        name: validateRequired(formData.name, 'Vui lòng nhập họ và tên'),
+        email: validateEmail(formData.email),
+        phone: validatePhone(formData.phone),
+        state: validateRequired(formData.state, 'Vui lòng nhập thành phố'),
+        city: validateRequired(formData.city, 'Vui lòng nhập quận/huyện'),
+        address: validateRequired(formData.address, 'Vui lòng nhập địa chỉ'),
+        pay_method: validatePayMethod(), // depends on radios
+      };
+    }
+
+    function setFieldError(fieldName, message, showIfUntouched) {
+      const errEl = form.querySelector(`[data-error-for="${fieldName}"]`);
+      const inputEl = fieldName === 'pay_method' ? null : fields[fieldName];
+      const shouldShow = !!message && (showIfUntouched || touched[fieldName]);
+
+      if (errEl) {
+        errEl.textContent = shouldShow ? message : '';
+      }
+
+      if (inputEl) {
+        inputEl.classList.toggle('checkout-input--error', shouldShow);
+        if (shouldShow) inputEl.setAttribute('aria-invalid', 'true');
+        else inputEl.removeAttribute('aria-invalid');
+      }
+
+      if (fieldName === 'pay_method') {
+        const grid = form.querySelector('.pay-grid');
+        if (grid) grid.classList.toggle('pay-grid--error', shouldShow);
+      }
+    }
+
+    function hasCartItems() {
+      return Number({{ order.get_cart_items|default:0 }}) > 0;
+    }
+
+    function updateInfoConfirmedUI() {
+      if (confirmHidden) confirmHidden.value = state.isInfoConfirmed ? '1' : '0';
+      if (infoConfirmedStatus) infoConfirmedStatus.hidden = !state.isInfoConfirmed;
+      if (placeOrderHint) {
+        placeOrderHint.textContent = state.isInfoConfirmed
+          ? ''
+          : 'Vui lòng xác nhận thông tin trước khi đặt hàng.';
+      }
+    }
+
+    function updatePlaceOrderState() {
+      const canPlaceOrder = state.isInfoConfirmed && hasCartItems();
+      if (placeOrderButton) {
+        placeOrderButton.disabled = !canPlaceOrder;
+        placeOrderButton.setAttribute('aria-disabled', String(!canPlaceOrder));
+      }
+    }
+
+    function validateAndRender(options) {
+      const { showUntouchedErrors = false } = options || {};
+      state.formData = readFormData();
+      state.errors = validateCheckoutForm(state.formData);
+      Object.entries(state.errors).forEach(([k, msg]) => setFieldError(k, msg, showUntouchedErrors));
+      state.isFormValid = Object.values(state.errors).every(msg => !msg);
+      return state.errors;
+    }
+
+    function focusFirstError(errors) {
+      const order = ['name', 'email', 'phone', 'state', 'city', 'address', 'pay_method'];
+      const firstKey = order.find(k => errors[k]);
+      if (!firstKey) return;
+
+      if (firstKey === 'pay_method') {
+        const firstRadio = payRadios[0];
+        if (firstRadio) {
+          firstRadio.focus({ preventScroll: true });
+          firstRadio.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+      }
+
+      const el = fields[firstKey];
+      if (el) {
+        el.focus({ preventScroll: true });
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function resetInfoConfirmed(reason) {
+      if (!state.isInfoConfirmed) return;
+      state.isInfoConfirmed = false;
+      state.confirmedSnapshot = null;
+      updateInfoConfirmedUI();
+      updatePlaceOrderState();
+      if (placeOrderHint) {
+        placeOrderHint.textContent = reason || 'Vui lòng xác nhận thông tin trước khi đặt hàng.';
+      }
+    }
+
+    function handleConfirmInfo() {
+      Object.keys(fields).forEach(k => (touched[k] = true));
+      touched.pay_method = true;
+
+      const errors = validateAndRender({ showUntouchedErrors: true });
+      const isValid = Object.values(errors).every(msg => !msg);
+      if (!isValid) {
+        state.isInfoConfirmed = false;
+        state.confirmedSnapshot = null;
+        updateInfoConfirmedUI();
+        updatePlaceOrderState();
+        focusFirstError(errors);
+        return;
+      }
+
+      state.isInfoConfirmed = true;
+      state.confirmedSnapshot = { ...state.formData };
+      updateInfoConfirmedUI();
+      updatePlaceOrderState();
+    }
+
+    function handlePlaceOrder(e) {
+      // Hard block logic even if user removes `disabled` in devtools
+      if (!hasCartItems()) {
+        e.preventDefault();
+        if (placeOrderHint) placeOrderHint.textContent = 'Giỏ hàng của bạn đang trống.';
+        return;
+      }
+
+      if (!state.isInfoConfirmed) {
+        e.preventDefault();
+        if (placeOrderHint) placeOrderHint.textContent = 'Vui lòng xác nhận thông tin trước khi đặt hàng.';
+        return;
+      }
+
+      // Re-validate at submit time (safe guard)
+      Object.keys(fields).forEach(k => (touched[k] = true));
+      touched.pay_method = true;
+      const errors = validateAndRender({ showUntouchedErrors: true });
+      const isValid = Object.values(errors).every(msg => !msg);
+      if (!isValid) {
+        e.preventDefault();
+        resetInfoConfirmed('Thông tin đã thay đổi hoặc chưa hợp lệ. Vui lòng xác nhận lại trước khi đặt hàng.');
+        focusFirstError(errors);
+      }
+    }
+
+    // Initial state
+    updateInfoConfirmedUI();
+    updatePlaceOrderState();
+    validateAndRender({ showUntouchedErrors: false });
+
+    Object.entries(fields).forEach(([name, el]) => {
+      if (!el) return;
+
+      el.addEventListener('input', () => {
+        touched[name] = true;
+        resetInfoConfirmed('Bạn đã chỉnh sửa thông tin. Vui lòng xác nhận lại trước khi đặt hàng.');
+        validateAndRender({ showUntouchedErrors: false });
+        updatePlaceOrderState();
+      });
+
+      el.addEventListener('blur', () => {
+        touched[name] = true;
+        validateAndRender({ showUntouchedErrors: false });
+        updatePlaceOrderState();
+      });
+    });
+
+    payRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        touched.pay_method = true;
+        resetInfoConfirmed('Bạn đã thay đổi phương thức thanh toán. Vui lòng xác nhận lại trước khi đặt hàng.');
+        validateAndRender({ showUntouchedErrors: false });
+        updatePlaceOrderState();
+      });
+      radio.addEventListener('blur', () => {
+        touched.pay_method = true;
+        validateAndRender({ showUntouchedErrors: false });
+        updatePlaceOrderState();
+      });
+    });
+
+    if (confirmButton) confirmButton.addEventListener('click', handleConfirmInfo);
+    form.addEventListener('submit', handlePlaceOrder);
+  })();
+</script>
 {% endblock content_checkout %}

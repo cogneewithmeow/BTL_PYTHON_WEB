@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <form method="POST" enctype="multipart/form-data" class="row g-3 g-lg-4">
+        <form method="POST" enctype="multipart/form-data" class="row g-3 g-lg-4" id="updateProfileForm" novalidate>
             {% csrf_token %}
 
             <div class="col-lg-4">
@@ -64,15 +64,48 @@
                             <div class="row g-3">
                                 <div class="col-12">
                                     <label class="account-label">Tên đăng nhập</label>
-                                    <input type="text" name="username" value="{{ user.username }}" class="account-input" autocomplete="username">
+                                    <input
+                                        type="text"
+                                        id="account_username"
+                                        name="username"
+                                        value="{{ form_values.username|default:user.username }}"
+                                        class="account-input"
+                                        autocomplete="username"
+                                        aria-describedby="error_username"
+                                    >
+                                    <div class="account-error-msg" id="error_username" data-error-for="username">
+                                        {% if form_errors.username %}{{ form_errors.username }}{% endif %}
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="account-label">Họ</label>
-                                    <input type="text" name="first_name" value="{{ user.first_name }}" class="account-input" autocomplete="given-name">
+                                    <input
+                                        type="text"
+                                        id="account_first_name"
+                                        name="first_name"
+                                        value="{{ form_values.first_name|default:user.first_name }}"
+                                        class="account-input"
+                                        autocomplete="given-name"
+                                        aria-describedby="error_first_name"
+                                    >
+                                    <div class="account-error-msg" id="error_first_name" data-error-for="first_name">
+                                        {% if form_errors.first_name %}{{ form_errors.first_name }}{% endif %}
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="account-label">Tên</label>
-                                    <input type="text" name="last_name" value="{{ user.last_name }}" class="account-input" autocomplete="family-name">
+                                    <input
+                                        type="text"
+                                        id="account_last_name"
+                                        name="last_name"
+                                        value="{{ form_values.last_name|default:user.last_name }}"
+                                        class="account-input"
+                                        autocomplete="family-name"
+                                        aria-describedby="error_last_name"
+                                    >
+                                    <div class="account-error-msg" id="error_last_name" data-error-for="last_name">
+                                        {% if form_errors.last_name %}{{ form_errors.last_name }}{% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -84,11 +117,11 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="account-label">Email</label>
-                                    <input type="email" name="email" value="{{ user.email }}" class="account-input" autocomplete="email">
+                                    <input type="email" name="email" value="{{ form_values.email|default:user.email }}" class="account-input" autocomplete="email">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="account-label">Số điện thoại</label>
-                                    <input type="text" name="phone" value="{{ user.profile.phone }}" class="account-input" autocomplete="tel">
+                                    <input type="text" name="phone" value="{{ form_values.phone|default:user.profile.phone }}" class="account-input" autocomplete="tel">
                                 </div>
                             </div>
                         </div>
@@ -100,7 +133,7 @@
                             <div class="row g-3">
                                 <div class="col-12">
                                     <label class="account-label">Địa chỉ nhận hàng</label>
-                                    <textarea name="address" class="account-input account-textarea" rows="3" autocomplete="street-address">{{ user.profile.address }}</textarea>
+                                    <textarea name="address" class="account-input account-textarea" rows="3" autocomplete="street-address">{{ form_values.address|default:user.profile.address }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -138,6 +171,98 @@
             preview.src = url;
             preview.classList.remove('d-none');
             if (fallback) fallback.classList.add('d-none');
+        });
+    })();
+</script>
+
+<script>
+    (function () {
+        const form = document.getElementById('updateProfileForm');
+        if (!form) return;
+
+        const fields = {
+            username: form.querySelector('[name="username"]'),
+            first_name: form.querySelector('[name="first_name"]'),
+            last_name: form.querySelector('[name="last_name"]'),
+        };
+
+        const touched = Object.create(null);
+
+        function validateRequired(value, message) {
+            const v = String(value || '').trim();
+            return v ? '' : message;
+        }
+
+        function computeErrors() {
+            return {
+                username: validateRequired(fields.username?.value, 'Vui lòng nhập tên đăng nhập'),
+                first_name: validateRequired(fields.first_name?.value, 'Vui lòng nhập họ'),
+                last_name: validateRequired(fields.last_name?.value, 'Vui lòng nhập tên'),
+            };
+        }
+
+        function setFieldError(fieldName, message, showIfUntouched) {
+            const errEl = form.querySelector(`[data-error-for="${fieldName}"]`);
+            const inputEl = fields[fieldName];
+            const shouldShow = !!message && (showIfUntouched || touched[fieldName]);
+
+            if (errEl) errEl.textContent = shouldShow ? message : '';
+            if (inputEl) {
+                inputEl.classList.toggle('account-input--error', shouldShow);
+                if (shouldShow) inputEl.setAttribute('aria-invalid', 'true');
+                else inputEl.removeAttribute('aria-invalid');
+            }
+        }
+
+        function validateAndRender(options) {
+            const { showUntouchedErrors = false } = options || {};
+            const errors = computeErrors();
+            Object.entries(errors).forEach(([k, msg]) => setFieldError(k, msg, showUntouchedErrors));
+            return errors;
+        }
+
+        function focusFirstError(errors) {
+            const order = ['username', 'first_name', 'last_name'];
+            const firstKey = order.find(k => errors[k]);
+            if (!firstKey) return;
+            const el = fields[firstKey];
+            if (el) {
+                el.focus({ preventScroll: true });
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // Initial render: if server returned errors, mark as touched to show immediately
+        const hasServerErrors = !!(form.querySelector('#error_username')?.textContent.trim()
+            || form.querySelector('#error_first_name')?.textContent.trim()
+            || form.querySelector('#error_last_name')?.textContent.trim());
+        if (hasServerErrors) {
+            Object.keys(fields).forEach(k => (touched[k] = true));
+            validateAndRender({ showUntouchedErrors: true });
+        } else {
+            validateAndRender({ showUntouchedErrors: false });
+        }
+
+        Object.entries(fields).forEach(([name, el]) => {
+            if (!el) return;
+            el.addEventListener('input', () => {
+                touched[name] = true;
+                validateAndRender({ showUntouchedErrors: false });
+            });
+            el.addEventListener('blur', () => {
+                touched[name] = true;
+                validateAndRender({ showUntouchedErrors: false });
+            });
+        });
+
+        form.addEventListener('submit', (e) => {
+            Object.keys(fields).forEach(k => (touched[k] = true));
+            const errors = validateAndRender({ showUntouchedErrors: true });
+            const isValid = Object.values(errors).every(msg => !msg);
+            if (!isValid) {
+                e.preventDefault();
+                focusFirstError(errors);
+            }
         });
     })();
 </script>

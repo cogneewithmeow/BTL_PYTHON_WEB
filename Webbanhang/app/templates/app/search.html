@@ -1,6 +1,7 @@
 {% extends "app/base.html" %}
 {% load static %}
 {% load humanize %}
+{% load money %}
 
 {% block search %}
 <section class="search-page">
@@ -161,7 +162,7 @@
                                     <a class="p-card__name" href="{% url 'detail' %}?id={{ product.id }}">{{ product.name }}</a>
                                     <div class="p-card__bottom">
                                         <div class="p-card__price">
-                                            {{ product.price|intcomma|cut:"," }}đ
+                                            {{ product.price|dot_thousands }}đ
                                         </div>
                                         <div class="p-card__actions">
                                             <button

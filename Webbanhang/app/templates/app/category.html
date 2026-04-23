@@ -1,6 +1,7 @@
 {% extends "app/base.html" %}
 {% load static %}
 {% load humanize %}
+{% load money %}
 
 {% block main_content %}
 <div class="container py-3 py-lg-4">
@@ -32,7 +33,7 @@
                             </a>
                         </div>
                         <span class="text-danger fw-bold">
-                            {{ product.price|intcomma }} VNĐ
+                            {{ product.price|dot_thousands }} VNĐ
                         </span>
                     </div>
                 </div>
